@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-client-service
+  namespace: case
+spec:
+  type: NodePort
+  selector:
+    app: web-client
+  ports:
+  - port: 3100
+    targetPort: 80

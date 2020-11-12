@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: messaging
+  namespace: case
+  labels:
+    app: messaging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: messaging
+  template:
+    metadata:
+      labels:
+        app: messaging
+    spec:
+      containers:
+      - name: messaging
+        image: sajeeth1009/messaging-service-image:v0.8.3
+        imagePullPolicy: Always
+        env:
+        - name: MESSAGING_SERVICE_LISTEN_PORT
+          value: "5004"
+        - name: GLOBAL_DB_CONNECTION_STR
+          value: mongo-atlas-service:27017
+        - name: GLOBAL_DB_CONNECTION_PREFIX
+          valueFrom:
+            secretKeyRef:
+              name: case-mongodb-atlas
+              key: connectionPrefix
+        - name: GLOBAL_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: case-mongodb-atlas
+              key: username
+        - name: GLOBAL_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: case-mongodb-atlas
+              key: password
+        - name: MESSAGE_DB_CONNECTION_STR
+          value: mongo-atlas-service:27017
+        - name: MESSAGE_DB_CONNECTION_PREFIX
+          valueFrom:
+            secretKeyRef:
+              name: case-mongodb-atlas
+              key: connectionPrefix
+        - name: MESSAGE_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: case-mongodb-atlas
+              key: username
+        - name: MESSAGE_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: case-mongodb-atlas
+              key: password
+        - name: DB_TIMEOUT
+          value: "30"
+        - name: DB_IDLE_CONN_TIMEOUT
+          value: "46"
+        - name: DB_MAX_POOL_SIZE
+          value: "8"
+        - name: DB_DB_NAME_PREFIX
+          value: ""
+        - name: ADDR_USER_MANAGEMENT_SERVICE
+          value: user-management-service:5002
+        - name: ADDR_STUDY_SERVICE
+          value: study-service:5003
+        - name: ADDR_EMAIL_CLIENT_SERVICE
+          value: email-client-service:5005
+        - name: ADDR_LOGGING_SERVICE
+          value: logging-service:5006
+        ports:
+        - containerPort: 5004

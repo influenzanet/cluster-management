@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: management-api
+  namespace: case
+  labels:
+    app: management-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: management-api
+  template:
+    metadata:
+      labels:
+        app: management-api
+    spec:
+      containers:
+      - name: management-api
+        image: sajeeth1009/management-api-image:v0.12.1
+        imagePullPolicy: Always
+        env:
+        - name: MANAGEMENT_API_GATEWAY_LISTEN_PORT
+          value: "3232"
+        - name: CORS_ALLOW_ORIGINS
+          value: "https://case.com,http://case.com"
+        - name: DEBUG_MODE
+          value: "false"
+        - name: ADDR_USER_MANAGEMENT_SERVICE
+          value: user-management-service:5002
+        - name: ADDR_STUDY_SERVICE
+          value: study-service:5003
+        - name: ADDR_MESSAGING_SERVICE
+          value: messaging-service:5004
+        ports:
+        - containerPort: 3232

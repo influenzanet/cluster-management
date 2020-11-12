@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-client
+  namespace: case
+  labels:
+    app: web-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-client
+  template:
+    metadata:
+      labels:
+        app: web-client
+    spec:
+      containers:
+      - name: web-client
+        image: sajeeth1009/web-client-image:v0.22.3
+        imagePullPolicy: Always
+        envFrom:
+          - configMapRef:
+              name: web-env-config
+        ports:
+        - containerPort: 3100
+      imagePullSecrets:
+      - name: regcred

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: messaging-service
+  namespace: case
+spec:
+  type: ClusterIP
+  selector:
+    app: messaging
+  ports:
+  - name: grpc
+    protocol: TCP
+    port: 5004
+    targetPort: 5004
