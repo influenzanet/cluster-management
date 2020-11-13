@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: logging
-        image: sajeeth1009/logging-image:v0.22.3
+        image: sajeeth1009/logging-service-image:v0.1.0
         imagePullPolicy: Always
         env:
         - name: LOGGING_SERVICE_LISTEN_PORT
