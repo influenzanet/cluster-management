@@ -80,15 +80,12 @@ spec:
           value: "2"
         - name: ADDR_MESSAGING_SERVICE
           value: messaging-service:5004
+        - name: ADDR_LOGGING_SERVICE
+          value: logging-service:5006
         - name: NEW_USER_RATE_LIMIT
           value: "100"
+        - name: CLEAN_UP_UNVERIFIED_USERS_AFTER
+          value: "129000"
         ports:
         - containerPort: 5002
-        resources:
-          requests:
-            cpu: 30m
-            memory: 120Mi
-          limits:
-            cpu: 200m
-            memory: 200Mi
 
