@@ -26,11 +26,10 @@ spec:
           value: "/config"
         volumeMounts:
         - name: config-volume
-          mountPath: /config/config.yaml
-          subPath: config.yaml
+          mountPath: /config/
         ports:
         - containerPort: 5005
       volumes:
       - name: config-volume
         configMap:
-          name: email-server
+          name: email-server-config
