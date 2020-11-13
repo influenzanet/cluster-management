@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logging
+  namespace: case
+  labels:
+    app: logging
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logging
+  template:
+    metadata:
+      labels:
+        app: logging
+    spec:
+      containers:
+      - name: logging
+        image: sajeeth1009/logging-image:v0.22.3
+        imagePullPolicy: Always
+        env:
+        - name: LOGGING_SERVICE_LISTEN_PORT
+          value: "5006"
+        - name: DB_TIMEOUT
+          value: "30"
+        - name: DB_IDLE_CONN_TIMEOUT
+          value: "46"
+        - name: DB_MAX_POOL_SIZE
+          value: "8"
+        - name: DB_DB_NAME_PREFIX
+          value: ""
+        - name: LOG_DB_CONNECTION_STR
+          value: mongo-atlas-service:27017
+        - name: LOG_DB_CONNECTION_PREFIX
+          valueFrom:
+            secretKeyRef:
+              name: case-mongodb-atlas
+              key: connectionPrefix
+        - name: LOG_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: case-mongodb-atlas
+              key: username
+        - name: LOG_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: case-mongodb-atlas
+              key: password
+        ports:
+        - containerPort: 5006
