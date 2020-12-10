@@ -42,3 +42,10 @@ spec:
           value: "false"
         ports:
         - containerPort: 3231
+        resources:
+          requests:
+            cpu: 30m
+            memory: 120Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi

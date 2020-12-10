@@ -75,4 +75,11 @@ spec:
           value: logging-service:5006
         ports:
         - containerPort: 5003
+        resources:
+          requests:
+            cpu: 30m
+            memory: 120Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi
 

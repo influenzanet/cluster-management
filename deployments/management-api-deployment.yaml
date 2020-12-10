@@ -34,3 +34,10 @@ spec:
           value: messaging-service:5004
         ports:
         - containerPort: 3232
+        resources:
+          requests:
+            cpu: 30m
+            memory: 120Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi

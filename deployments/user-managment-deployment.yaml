@@ -88,4 +88,11 @@ spec:
           value: "129000"
         ports:
         - containerPort: 5002
+        resources:
+          requests:
+            cpu: 30m
+            memory: 120Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi
 

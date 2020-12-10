@@ -24,5 +24,12 @@ spec:
               name: web-env-config
         ports:
         - containerPort: 3100
+        resources:
+          requests:
+            cpu: 30m
+            memory: 120Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi
       imagePullSecrets:
       - name: regcred

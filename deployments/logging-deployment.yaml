@@ -49,3 +49,10 @@ spec:
               key: password
         ports:
         - containerPort: 5006
+        resources:
+          requests:
+            cpu: 30m
+            memory: 120Mi
+          limits:
+            cpu: 200m
+            memory: 200Mi
