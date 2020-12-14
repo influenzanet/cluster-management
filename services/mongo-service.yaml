@@ -7,6 +7,7 @@ spec:
   type: ClusterIP
   selector:
     app: mongo
+    role: mongo
   ports:
   - name: grpc
     protocol: TCP
