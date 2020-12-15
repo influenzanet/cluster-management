@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: web-client
-        image: sajeeth1009/web-client-image:v0.22.3
+        image: sajeeth1009/web-client-image:v0.24.4
         imagePullPolicy: Always
         envFrom:
           - configMapRef:
@@ -31,5 +31,3 @@ spec:
           limits:
             cpu: 200m
             memory: 200Mi
-      imagePullSecrets:
-      - name: regcred
