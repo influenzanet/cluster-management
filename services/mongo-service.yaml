@@ -4,10 +4,9 @@ metadata:
   name: mongo-atlas-service
   namespace: case
 spec:
-  type: ClusterIP
   selector:
     app: mongo
-    role: mongo
+  clusterIP: None
   ports:
   - name: grpc
     protocol: TCP
