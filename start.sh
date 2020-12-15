@@ -48,6 +48,13 @@ kubectl create -f services/participant-api-service.yaml
 
 
 # Deploying Messaging Service
+kubectl create -f configmaps/email-config.yaml
+kubectl create -f deployments/email-client-deployment.yaml
+kubectl create -f deployments/messaging-service-deployment.yaml
+kubectl create -f deployments/messaging-scheduler-deployment.yaml
+kubectl create -f services/email-client-service.yaml
+kubectl create -f service/messaging-service.yaml
+kubectl create -f services/messaging-scheduler-service.yaml
 
 # Deploying Web Client Service
 kubectl create -f configmaps/web-env-config.yaml 
