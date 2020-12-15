@@ -1,8 +1,18 @@
 kubectl create -f namespace.yaml
 
-openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=nginxsvc/O=nginxsvc"
+# openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout tls.key -out tls.crt -subj "/CN=nginxsvc/O=nginxsvc"
 
-kubectl create secret tls cert_case --key tls.key --cert tls.crt 
+# kubectl create secret tls cert_case --key tls.key --cert tls.crt 
+#kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=sajeeth1009 --docker-password=Anusha2194 --docker-email=sajeeth.sadanand@gmail.com
+
+
+
+# sudo docker login -u "username" -p "password" docker.io
+# sudo cp /root/.docker/config.json .
+# sudo chmod +777 config.json
+# kubectl create secret generic regcred \
+#    --from-file=.dockerconfigjson=config.json \
+#    --type=kubernetes.io/dockerconfigjson
 
 kubectl create -f secrets/secrets.yaml
 
@@ -41,10 +51,9 @@ kubectl create -f services/participant-api-service.yaml
 
 # Deploying Web Client Service
 kubectl create -f configmaps/web-env-config.yaml 
-kubectl create -f deployments/web-client-deployment.yaml 
+# kubectl create -f deployments/web-client-deployment.yaml 
+kubectl apply -f deployments/web-client-deployment.yaml 
 kubectl create -f services/web-client-service.yaml
-kubectl create -f ingress/case-ingress-web.yaml
-kubectl create -f ingress/case-ingress.yaml
 
 # Deploying ingress services
 kubectl create -f ingress/case-ingress.yaml
