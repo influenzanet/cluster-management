@@ -18,7 +18,7 @@ spec:
       containers:
       - name: web-client
         image: sajeeth1009/web-client-image:v0.24.4
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         envFrom:
           - configMapRef:
               name: web-env-config

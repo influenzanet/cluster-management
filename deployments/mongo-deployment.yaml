@@ -35,6 +35,7 @@ spec:
               key: password
         command:
         - "mongod"
+        - "--auth"
         - "--bind_ip"
         - "0.0.0.0"
         ports:

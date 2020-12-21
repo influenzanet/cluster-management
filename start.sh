@@ -14,6 +14,12 @@ kubectl create -f namespace.yaml
 #    --from-file=.dockerconfigjson=config.json \
 #    --type=kubernetes.io/dockerconfigjson
 
+kubectl apply --validate=true -f https://github.com/jetstack/cert-manager/releases/download/v0.12.0/cert-manager.yaml
+
+kubectl apply -f secrets/cert_issuer.yaml
+
+# kubectl get pods --namespace cert-manager
+
 kubectl create -f secrets/secrets.yaml
 
 sudo mkdir /mnt/data

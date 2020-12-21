@@ -4,9 +4,9 @@ metadata:
   name: task-pv-claim
   namespace: case
 spec:
-  storageClassName: manual
+  storageClassName: standard
   accessModes:
     - ReadWriteMany
   resources:
     requests:
-      storage: 1Gi
+      storage: 50Gi
