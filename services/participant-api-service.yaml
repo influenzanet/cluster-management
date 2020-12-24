@@ -5,7 +5,6 @@ metadata:
   namespace: case
 spec:
   type: ClusterIP
-  clusterIP: 10.96.0.12
   selector:
     app: participant-api
   ports:
