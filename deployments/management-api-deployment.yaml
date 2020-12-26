@@ -37,7 +37,7 @@ spec:
         resources:
           requests:
             cpu: 30m
-            memory: 120Mi
+            memory: 150Mi
           limits:
-            cpu: 200m
-            memory: 200Mi
+            cpu: 100m
+            memory: 300Mi
