@@ -22,12 +22,12 @@ kubectl apply -f secrets/cert_issuer.yaml
 
 kubectl create -f secrets/secrets.yaml
 
-sudo mkdir /mnt/data
+# sudo mkdir /mnt/data
 
-sudo sh -c "echo 'Hello from Kubernetes storage' > /mnt/data/index.html"
+# sudo sh -c "echo 'Hello from Kubernetes storage' > /mnt/data/index.html"
 
 # Deploying MongoDB instance
-kubectl create -f storageclass/persistant_volume.yaml
+# kubectl create -f storageclass/persistant_volume.yaml
 kubectl create -f storageclass/persistant_claim.yaml
 kubectl create -f deployments/mongo-deployment.yaml 
 kubectl create -f services/mongo-service.yaml
