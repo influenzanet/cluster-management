@@ -59,7 +59,7 @@ kubectl create -f deployments/email-client-deployment.yaml
 kubectl create -f deployments/messaging-service-deployment.yaml
 kubectl create -f deployments/messaging-scheduler-deployment.yaml
 kubectl create -f services/email-client-service.yaml
-kubectl create -f service/messaging-service.yaml
+kubectl create -f services/messaging-service.yaml
 kubectl create -f services/messaging-scheduler-service.yaml
 
 # Deploying Web Client Service
