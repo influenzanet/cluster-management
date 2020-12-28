@@ -4,7 +4,7 @@ metadata:
   name: web-client-service
   namespace: case
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: web-client
   ports:

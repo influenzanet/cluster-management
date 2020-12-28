@@ -4,7 +4,7 @@ metadata:
   name: participant-api-service
   namespace: case
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: participant-api
   ports:
