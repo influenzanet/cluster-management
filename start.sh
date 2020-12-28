@@ -14,7 +14,12 @@ kubectl create -f namespace.yaml
 #    --from-file=.dockerconfigjson=config.json \
 #    --type=kubernetes.io/dockerconfigjson
 
-kubectl apply --validate=true -f https://github.com/jetstack/cert-manager/releases/download/v0.12.0/cert-manager.yaml
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.42.0/deploy/static/provider/cloud/deploy.yaml
+
+
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml
+
+# kubectl apply --validate=true -f https://github.com/jetstack/cert-manager/releases/download/v0.12.0/cert-manager.yaml
 
 kubectl apply -f secrets/cert_issuer.yaml
 
@@ -69,5 +74,5 @@ kubectl apply -f deployments/web-client-deployment.yaml
 kubectl create -f services/web-client-service.yaml
 
 # Deploying ingress services
-kubectl create -f ingress/case-ingress.yaml
+# kubectl create -f ingress/case-ingress.yaml
 kubectl create -f ingress/case-ingress-web.yaml
