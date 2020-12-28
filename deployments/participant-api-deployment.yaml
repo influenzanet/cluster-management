@@ -25,7 +25,7 @@ spec:
         - name: GATEWAY_LISTEN_PORT
           value: "3231"
         - name: CORS_ALLOW_ORIGINS
-          value: "https://case.com,http://case.com"
+          value: "https://tofudumplings.com,http://tofudumplings.com"
         - name: DEBUG_MODE
           value: "false"
         - name: ADDR_USER_MANAGEMENT_SERVICE
