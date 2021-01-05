@@ -77,3 +77,12 @@ Once the repository has been checked out into the server:
 	kubectl get deployments,services,pods --namespace=case
 	
 	```
+4. On GKE sometimes webhook creation might fail for nginx admission, to get past this error run the following:
+	```
+	kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
+	```
+5. Lets encrypt (which is used for certificate creation) has a duplicate certificate creation limit of 5 per week. 
+	```
+	check logs of the created certificate by runnning
+	kubectl describe certificate <cert-name> -n case
+	```

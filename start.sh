@@ -6,18 +6,23 @@ kubectl create -f namespace.yaml
 #kubectl create secret docker-registry regcred --docker-server=https://index.docker.io/v1/ --docker-username=username --docker-password=password --docker-email=email
 
 
-
-# sudo docker login -u "username" -p "password" docker.io
-# sudo cp /root/.docker/config.json .
-# sudo chmod +777 config.json
 # kubectl create secret generic regcred \
 #    --from-file=.dockerconfigjson=config.json \
 #    --type=kubernetes.io/dockerconfigjson
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install nginx-controller ingress-nginx/ingress-nginx
 
-kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.42.0/deploy/static/provider/cloud/deploy.yaml
+
+#kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.42.0/deploy/static/provider/cloud/deploy.yaml
 
 
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml
+
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=120s
 
 # kubectl apply --validate=true -f https://github.com/jetstack/cert-manager/releases/download/v0.12.0/cert-manager.yaml
 
@@ -69,10 +74,9 @@ kubectl create -f services/messaging-scheduler-service.yaml
 
 # Deploying Web Client Service
 kubectl create -f configmaps/web-env-config.yaml 
-# kubectl create -f deployments/web-client-deployment.yaml 
 kubectl apply -f deployments/web-client-deployment.yaml 
 kubectl create -f services/web-client-service.yaml
 
 # Deploying ingress services
-# kubectl create -f ingress/case-ingress.yaml
+kubectl create -f ingress/case-ingress.yaml
 kubectl create -f ingress/case-ingress-web.yaml
