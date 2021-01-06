@@ -6,4 +6,3 @@ kubectl delete secrets jwt-collection case-mongodb-atlas --namespace=belgium
 kubectl delete secrets cert_case regcred
 kubectl delete configmaps email-server-config web-env-config --namespace=belgium
 kubectl delete ingress case-ingress case-ingress-web --namespace=belgium
-kubectl delete clusterissuer letsencrypt-prod-site --namespace=belgium
