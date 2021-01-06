@@ -1,0 +1,68 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: case
+  name: namespace-viewer
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods", "services", "endpoints", "events", "configmaps", "persistentvolumeclaims", "podtemplates","replicationcontrollers", "resourcequotas", "secrets"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: ["apps"] # "" indicates the core API group
+  resources: ["daemonsets", deployments", "replicasets", "statefulsets"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: ["autoscaling"] # "" indicates the core API group
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: ["extensions"] # "" indicates the core API group
+  resources: ["ingresses"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: ["networking.k8s.io"] # "" indicates the core API group
+  resources: ["ingressclasses", "ingresses", "networkpolicies"]
+  verbs: ["get", "watch", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: case
+  name: namespace-editor
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods", "services", "endpoints", "events", "configmaps", "persistentvolumeclaims", "podtemplates","replicationcontrollers", "resourcequotas", "secrets"]
+  verbs: ["get", "watch", "list", "cluster-info", "describe", "exec", "delete", "logs", "wait", "update", "patch", "create"]
+- apiGroups: ["apps"] # "" indicates the core API group
+  resources: ["daemonsets", deployments", "replicasets", "statefulsets"]
+  verbs: ["get", "watch", "list", "cluster-info", "describe", "exec", "delete", "logs", "wait", "update", "patch", "create"]
+- apiGroups: ["autoscaling"] # "" indicates the core API group
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["get", "watch", "list", "cluster-info", "describe", "exec", "delete", "logs", "wait", "update", "patch", "create"]
+- apiGroups: ["extensions"] # "" indicates the core API group
+  resources: ["ingresses"]
+  verbs: ["get", "watch", "list", "cluster-info", "describe", "exec", "delete", "logs", "wait", "update", "patch", "create"]
+- apiGroups: ["networking.k8s.io"] # "" indicates the core API group
+  resources: ["ingressclasses", "ingresses", "networkpolicies"]
+  verbs: ["get", "watch", "list", "cluster-info", "describe", "exec", "delete", "logs", "wait", "update", "patch", "create"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: case
+  name: namespace-admin
+rules:
+- apiGroups: [""] # "" indicates the core API group
+  resources: ["pods", "services", "endpoints", "events", "configmaps", "persistentvolumeclaims", "podtemplates","replicationcontrollers", "resourcequotas", "secrets"]
+  verbs: ["get", "watch", "list", "cluster-info", "describe", "exec", "delete", "logs", "wait", "update", "patch", "create"]
+- apiGroups: ["apps"] # "" indicates the core API group
+  resources: ["daemonsets", deployments", "replicasets", "statefulsets"]
+  verbs: ["get", "watch", "list", "cluster-info", "describe", "exec", "delete", "logs", "wait", "update", "patch", "create"]
+- apiGroups: ["autoscaling"] # "" indicates the core API group
+  resources: ["horizontalpodautoscalers"]
+  verbs: ["get", "watch", "list", "cluster-info", "describe", "exec", "delete", "logs", "wait", "update", "patch", "create"]
+- apiGroups: ["extensions"] # "" indicates the core API group
+  resources: ["ingresses"]
+  verbs: ["get", "watch", "list", "cluster-info", "describe", "exec", "delete", "logs", "wait", "update", "patch", "create"]
+- apiGroups: ["networking.k8s.io"] # "" indicates the core API group
+  resources: ["ingressclasses", "ingresses", "networkpolicies"]
+  verbs: ["get", "watch", "list", "cluster-info", "describe", "exec", "delete", "logs", "wait", "update", "patch", "create"]
+- apiGroups: ["rbac.authorization.k8s.io"] # "" indicates the core API group
+  resources: ["roles", "rolebindings"]
+  verbs: ["get", "watch", "list", "cluster-info", "describe", "exec", "delete", "logs", "wait", "update", "patch", "create"]
