@@ -39,7 +39,10 @@ spec:
         - name: USE_RECAPTCHA
           value: "true"
         - name: RECAPTCHA_SECRET
-          value: "false"
+          valueFrom:
+            secretKeyRef:
+              name: recaptcha-collection
+              key: secret-key
         ports:
         - containerPort: 3231
         resources:
