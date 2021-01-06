@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: study
-  namespace: case
+  namespace: italy
   labels:
     app: study
 spec:

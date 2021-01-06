@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: participant-api
-  namespace: case
+  namespace: italy
   labels:
     app: participant-api
 spec:

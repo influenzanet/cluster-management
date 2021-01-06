@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: web-env-config
-  namespace: case
+  namespace: italy
 data:
   env.local: |
     REACT_APP_API_BASE_URL=http://10.96.0.12:3231

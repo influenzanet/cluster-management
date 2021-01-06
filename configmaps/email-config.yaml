@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: email-server-config
-  namespace: case
+  namespace: italy
 data:
   smtp-servers.yaml: |
     from: '"InfluenzaNet General" username@email.com'

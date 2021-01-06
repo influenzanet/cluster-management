@@ -2,7 +2,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: read-access
-  namespace: default
+  namespace: italy
 subjects:
 # You can specify more than one "subject"
 - kind: User
@@ -18,7 +18,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: edit-access
-  namespace: default
+  namespace: italy
 subjects:
 # You can specify more than one "subject"
 - kind: User
@@ -34,7 +34,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: admin-access
-  namespace: default
+  namespace: italy
 subjects:
 # You can specify more than one "subject"
 - kind: User

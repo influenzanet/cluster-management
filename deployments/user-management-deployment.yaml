@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: user-management
-  namespace: case
+  namespace: italy
   labels:
     app: user-management
 spec:

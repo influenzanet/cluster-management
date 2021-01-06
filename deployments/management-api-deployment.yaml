@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: management-api
-  namespace: case
+  namespace: italy
   labels:
     app: management-api
 spec:
