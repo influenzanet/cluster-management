@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1beta1
 kind: Ingress
 metadata:
   name: case-ingress
-  namespace: case
+  namespace: belgium
   annotations:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: "letsencrypt-prod-site"
@@ -10,10 +10,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - tofudumplings.com
-    secretName: site-tls
+    - test.infectieradar.be
+    secretName: echo-tls
   rules:
-    - host: tofudumplings.com
+    - host: test.infectieradar.be
       http:
         paths:
           - path: /api(/|$)(.*)

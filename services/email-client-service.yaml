@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: email-client-service
-  namespace: case
+  namespace: belgium
 spec:
   type: ClusterIP
   selector:

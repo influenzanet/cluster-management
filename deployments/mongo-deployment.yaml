@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: mongo
-  namespace: case
+  namespace: belgium
   labels:
     app: mongo
 spec:

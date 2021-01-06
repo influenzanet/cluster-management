@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: management-api
-  namespace: case
+  namespace: belgium
   labels:
     app: management-api
 spec:
@@ -23,7 +23,7 @@ spec:
         - name: MANAGEMENT_API_GATEWAY_LISTEN_PORT
           value: "3232"
         - name: CORS_ALLOW_ORIGINS
-          value: "https://tofudumplings.com,http://tofudumplings.com"
+          value: "https://test.infectieradar.be,http://test.infectieradar.be"
         - name: DEBUG_MODE
           value: "false"
         - name: ADDR_USER_MANAGEMENT_SERVICE

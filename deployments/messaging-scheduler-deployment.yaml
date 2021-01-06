@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: message-scheduler
-  namespace: case
+  namespace: belgium
   labels:
     app: message-scheduler
 spec:

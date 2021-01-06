@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: mongo-atlas-service
-  namespace: case
+  namespace: belgium
 spec:
   selector:
     app: mongo

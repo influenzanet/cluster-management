@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: participant-api
-  namespace: case
+  namespace: belgium
   labels:
     app: participant-api
 spec:
@@ -25,7 +25,7 @@ spec:
         - name: GATEWAY_LISTEN_PORT
           value: "3231"
         - name: CORS_ALLOW_ORIGINS
-          value: "https://tofudumplings.com,http://tofudumplings.com"
+          value: "https://test.infectieradar.be,http://test.infectieradar.be"
         - name: DEBUG_MODE
           value: "false"
         - name: ADDR_USER_MANAGEMENT_SERVICE
