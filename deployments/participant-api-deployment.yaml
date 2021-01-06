@@ -42,7 +42,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: recaptcha-collection
-              key: secret-key
+              key: recaptchaKey
         ports:
         - containerPort: 3231
         resources:
