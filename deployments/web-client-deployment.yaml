@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: web-client
-        image: sajeeth1009/web-client-image:v0.24.6
+        image: sajeeth1009/web-client-image:v0.24.8
         imagePullPolicy: IfNotPresent
         envFrom:
           - configMapRef:
