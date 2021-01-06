@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: case
+  namespace: belgium
   name: namespace-viewer
 rules:
 - apiGroups: [""] # "" indicates the core API group
@@ -23,7 +23,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: case
+  namespace: belgium
   name: namespace-editor
 rules:
 - apiGroups: [""] # "" indicates the core API group
@@ -45,7 +45,7 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  namespace: case
+  namespace: belgium
   name: namespace-admin
 rules:
 - apiGroups: [""] # "" indicates the core API group
