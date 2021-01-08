@@ -50,7 +50,7 @@ This guide consists of two sections:
 
  Before proceeding ensure the values are correct within the files
 
-1. secrets/secrets.yaml : Here we configure secrets such as database passwords/ jwt keys
+1. secrets/secrets.yaml : Here we configure secrets such as database passwords/ jwt / (recaptcha keys in base64)
 2. configmaps/email-config.yaml: Here we need to update the contents of the SMTP server as well as the high priority SMTP server used for mailing.
 3. Under the folder deployment, files representing each of the micro services are located (*-deployment.yaml files). Here edit the files to reflect the correct values for each of the environment variables. For example: Setting the value of the cors allowed origins field in both participant and management api deployment files.
 4. Update the files in the inginx-ngress folder to reflect the domain name to be used.
