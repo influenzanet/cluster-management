@@ -23,7 +23,7 @@ spec:
         - name: MANAGEMENT_API_GATEWAY_LISTEN_PORT
           value: "3232"
         - name: CORS_ALLOW_ORIGINS
-          value: "https://test.infectieradar.be,http://test.infectieradar.be"
+          value: "https://survey.infectieradar.be,http://survey.infectieradar.be"
         - name: DEBUG_MODE
           value: "false"
         - name: ADDR_USER_MANAGEMENT_SERVICE

@@ -9,7 +9,7 @@ git clone https://github.com/influenzanet/logging-service.git
 set -e
 
 microservice="web-client-nl"
-imagename="web-client-image"
+imagename="web-client-belgium-image"
 
 
 cd $microservice

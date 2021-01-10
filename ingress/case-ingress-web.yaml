@@ -10,10 +10,10 @@ metadata:
 spec:
   tls:
   - hosts:
-    - test.infectieradar.be
-    secretName: echo-tls-web
+    - survey.infectieradar.be
+    secretName: survey-infectieradar-tls-web
   rules:
-    - host: test.infectieradar.be
+    - host: survey.infectieradar.be
       http:
         paths:
           - path: /
