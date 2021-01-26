@@ -1,5 +1,5 @@
 
-git clone https://github.com/influenzanet/web-client-nl.git
+git clone https://github.com/influenzanet/web-app.git
 git clone https://github.com/influenzanet/user-management-service.git
 git clone https://github.com/influenzanet/study-service.git
 git clone https://github.com/influenzanet/api-gateway.git
@@ -8,7 +8,7 @@ git clone https://github.com/influenzanet/logging-service.git
 
 set -e
 
-microservice="web-client-nl"
+microservice="web-app"
 imagename="web-client-image"
 
 
@@ -16,7 +16,7 @@ cd $microservice
 git pull
 version=`git describe --tags --abbrev=0`
 make docker
-docker tag github.com/influenzanet/web-client:$version sajeeth1009/$imagename:$version
+docker tag github.com/influenzanet/web-app:$version sajeeth1009/$imagename:$version
 docker push sajeeth1009/$imagename:$version
 cd ../
 
