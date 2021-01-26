@@ -32,8 +32,8 @@ This guide consists of two sections:
 1. Run build_docker.sh
 2. Docker might require sudo permissions to complete the build.
 3. Enter the credentials for the docker repository if asked.
-4. For building the web client, enter into the cloned web-client directory
-5. Create a new .env.local file and enter the required env variables mentioned in the repository for web-client
+4. For building the web app, enter into the cloned web-app directory
+5. Create a new .env.local file and enter the required env variables mentioned in the repository for web-app
 6. Re-run the build_docker.sh
 ----------------
 
@@ -59,8 +59,10 @@ This guide consists of two sections:
 ### Deployment Steps
 Once the repository has been checked out into the server:
 1. Set up the environment variables, domain information, deployment files, and secrets as mentioned in the previous section.
-2. Run the deployment script start.sh
-3. To stop and clean up all deployements, run the stop.sh script.
+2. Run the deployment script install_start.sh for the first time you set up the system.
+3. To stop and clean up run stop.sh (this removes everything except for already created certificates)
+3. To run the system after the initial set up, run start.sh. (prevents unnecessary reinstallation of nginx ingress & certificate manager)
+4. Manual deletion of nginx ingress controller/ certificates / certificate manager is required.
 
 ### Troubleshooting
 

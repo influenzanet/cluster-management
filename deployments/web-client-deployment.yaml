@@ -17,11 +17,8 @@ spec:
     spec:
       containers:
       - name: web-client
-        image: sajeeth1009/web-client-image:v0.24.8
-        imagePullPolicy: IfNotPresent
-        envFrom:
-          - configMapRef:
-              name: web-env-config
+        image: sajeeth1009/web-client-italy-image:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 3100
         resources:
