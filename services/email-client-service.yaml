@@ -4,11 +4,19 @@ metadata:
   name: email-client-service
   namespace: case
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: email-client
   ports:
   - name: grpc
-    protocol: TCP
     port: 5005
+    protocol: TCP
     targetPort: 5005
+  - name: smtpssl-svc
+    port: 465
+    protocol: TCP
+    targetPort: 465
+  - name: smtpauth-svc
+    port: 587
+    protocol: TCP
+    targetPort: 587
