@@ -29,6 +29,13 @@ spec:
           mountPath: /config/
         ports:
         - containerPort: 5005
+          protocol: TCP
+        - containerPort: 465
+          name: smtpssl
+          protocol: TCP
+        - containerPort: 587
+          name: smtpauth
+          protocol: TCP
         resources:
           requests:
             cpu: 30m

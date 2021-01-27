@@ -24,3 +24,11 @@ spec:
             backend:
               serviceName: web-client-service
               servicePort: 3100
+          - path: /privacy(/|$)(.*)
+            backend:
+              serviceName: web-client-service
+              servicePort: 3100
+          - path: /faq(/|$)(.*)
+            backend:
+              serviceName: web-client-service
+              servicePort: 3100

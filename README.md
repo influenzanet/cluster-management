@@ -88,3 +88,25 @@ Once the repository has been checked out into the server:
 	check logs of the created certificate by runnning
 	kubectl describe certificate <cert-name> -n case
 	```
+6. In case of errors in mail sending, you might have to edit the nginx ingress controller deployment and add the following ports
+	```
+
+        - containerPort: 465
+          name: smtpssl
+          protocol: TCP
+        - containerPort: 587
+          name: smtpauth
+          protocol: TCP
+	```
+
+	and to the nginx controller service the following: 
+	```
+		- name: smtp
+			port: 587
+			protocol: TCP
+			targetPort: 587
+		- name: smtpssl
+			port: 465
+			protocol: TCP
+			targetPort: 465
+	```
