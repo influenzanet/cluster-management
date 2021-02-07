@@ -16,19 +16,11 @@ spec:
     - host: survey.infectieradar.be
       http:
         paths:
-          - path: /
-            backend:
+          - backend:
               serviceName: web-client-service
               servicePort: 3100
-          - path: /home
-            backend:
+            path: /
+          - backend:
               serviceName: web-client-service
               servicePort: 3100
-          - path: /privacy(/|$)(.*)
-            backend:
-              serviceName: web-client-service
-              servicePort: 3100
-          - path: /faq(/|$)(.*)
-            backend:
-              serviceName: web-client-service
-              servicePort: 3100
+            path: /(home|faq|privacy|about|disclaimer|accessibility|contact|settings|link|survey)(.*)
