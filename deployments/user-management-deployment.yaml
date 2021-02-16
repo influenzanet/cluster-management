@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: user-management
-        image: infectieradarbe/user-management-image:v0.18.4
+        image: infectieradarbe/user-management-image:v0.19.2
         env:
         - name: USER_MANAGEMENT_LISTEN_PORT
           value: "5002"
@@ -86,6 +86,8 @@ spec:
           value: "100"
         - name: CLEAN_UP_UNVERIFIED_USERS_AFTER
           value: "129000"
+        - name: VERIFICATION_CODE_LIFETIME
+          value: "900"
         ports:
         - containerPort: 5002
         resources:
