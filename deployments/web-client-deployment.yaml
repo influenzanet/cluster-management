@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: web-client
-        image: sajeeth1009/web-client-belgium-image:latest
+        image: infectieradarbe/web-app:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 3100

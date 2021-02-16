@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: management-api
-        image: sajeeth1009/management-api-image:v0.12.1
+        image: infectieradarbe/management-api-image:v0.12.1
         imagePullPolicy: Always
         env:
         - name: MANAGEMENT_API_GATEWAY_LISTEN_PORT

@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: study
-        image: sajeeth1009/study-service-image:v0.13.2
+        image: infectieradarbe/study-service-image:v0.13.2
         env:
         - name: STUDY_SERVICE_LISTEN_PORT
           value: "5003"

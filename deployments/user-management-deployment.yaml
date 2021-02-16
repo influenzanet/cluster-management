@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: user-management
-        image: sajeeth1009/user-management-image:v0.18.4
+        image: infectieradarbe/user-management-image:v0.18.4
         env:
         - name: USER_MANAGEMENT_LISTEN_PORT
           value: "5002"

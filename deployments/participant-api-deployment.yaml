@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: participant-api
-        image: sajeeth1009/participant-api-image:v0.12.1
+        image: infectieradarbe/participant-api-image:v0.12.1
         imagePullPolicy: Always
         env:
         - name: USE_DELETE_PARTICIPANT_DATA_ENDPOINT

@@ -9,15 +9,15 @@ git clone https://github.com/influenzanet/logging-service.git
 set -e
 
 microservice="web-app"
-imagename="web-client-belgium-image"
+imagename="web-app"
 
 
 cd $microservice
 git pull
 version=`git describe --tags --abbrev=0`
 make docker
-docker tag github.com/influenzanet/web-app:$version sajeeth1009/$imagename:$version
-docker push sajeeth1009/$imagename:$version
+docker tag github.com/influenzanet/web-app:$version infectieradarbe/$imagename:$version
+docker push infectieradarbe/$imagename:$version
 cd ../
 
 
@@ -29,8 +29,8 @@ cd $microservice
 git pull
 version=`git describe --tags --abbrev=0`
 make docker
-docker tag github.com/influenzanet/$microservice:$version sajeeth1009/$imagename:$version
-docker push sajeeth1009/$imagename:$version
+docker tag github.com/influenzanet/$microservice:$version infectieradarbe/$imagename:$version
+docker push infectieradarbe/$imagename:$version
 cd ../
 
 
@@ -41,8 +41,8 @@ cd $microservice
 git pull
 version=`git describe --tags --abbrev=0`
 make docker
-docker tag github.com/influenzanet/$microservice:$version sajeeth1009/$imagename:$version
-docker push sajeeth1009/$imagename:$version
+docker tag github.com/influenzanet/$microservice:$version infectieradarbe/$imagename:$version
+docker push infectieradarbe/$imagename:$version
 cd ../
 
 
@@ -53,10 +53,10 @@ git pull
 version=`git describe --tags --abbrev=0`
 make docker-participant-api
 make docker-management-api
-docker tag github.com/influenzanet/participant-api:$version sajeeth1009/participant-api-image:$version
-docker tag github.com/influenzanet/management-api:$version sajeeth1009/management-api-image:$version
-docker push sajeeth1009/participant-api-image:$version
-docker push sajeeth1009/management-api-image:$version
+docker tag github.com/influenzanet/participant-api:$version infectieradarbe/participant-api-image:$version
+docker tag github.com/influenzanet/management-api:$version infectieradarbe/management-api-image:$version
+docker push infectieradarbe/participant-api-image:$version
+docker push infectieradarbe/management-api-image:$version
 cd ../
 
 
@@ -68,12 +68,12 @@ version=`git describe --tags --abbrev=0`
 make docker-email-client
 make docker-message-scheduler
 make docker-messaging-service
-docker tag github.com/influenzanet/messaging-service:$version sajeeth1009/messaging-service-image:$version
-docker tag github.com/influenzanet/message-scheduler:$version sajeeth1009/message-scheduler-image:$version
-docker tag github.com/influenzanet/email-client-service:$version sajeeth1009/email-client-service-image:$version
-docker push sajeeth1009/email-client-service-image:$version
-docker push sajeeth1009/message-scheduler-image:$version
-docker push sajeeth1009/messaging-service-image:$version
+docker tag github.com/influenzanet/messaging-service:$version infectieradarbe/messaging-service-image:$version
+docker tag github.com/influenzanet/message-scheduler:$version infectieradarbe/message-scheduler-image:$version
+docker tag github.com/influenzanet/email-client-service:$version infectieradarbe/email-client-service-image:$version
+docker push infectieradarbe/email-client-service-image:$version
+docker push infectieradarbe/message-scheduler-image:$version
+docker push infectieradarbe/messaging-service-image:$version
 cd ../
 
 
@@ -85,8 +85,8 @@ cd $microservice
 git pull
 version=`git describe --tags --abbrev=0`
 make docker
-docker tag github.com/influenzanet/$microservice:$version sajeeth1009/$imagename:$version
-docker push sajeeth1009/$imagename:$version
+docker tag github.com/influenzanet/$microservice:$version infectieradarbe/$imagename:$version
+docker push infectieradarbe/$imagename:$version
 cd ../
 
 read -p "Press enter to continue"
