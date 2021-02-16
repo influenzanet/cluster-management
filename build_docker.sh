@@ -1,10 +1,10 @@
 
-git clone https://github.com/influenzanet/web-app.git
-git clone https://github.com/influenzanet/user-management-service.git
-git clone https://github.com/influenzanet/study-service.git
-git clone https://github.com/influenzanet/api-gateway.git
-git clone https://github.com/influenzanet/messaging-service.git
-git clone https://github.com/influenzanet/logging-service.git
+git clone --single-branch --branch dev https://github.com/InfectieradarBE/web-app.git
+git clone https://github.com/InfectieradarBE/user-management-service.git
+git clone https://github.com/InfectieradarBE/study-service.git
+git clone https://github.com/InfectieradarBE/api-gateway.git
+git clone https://github.com/InfectieradarBE/messaging-service.git
+git clone https://github.com/InfectieradarBE/logging-service.git
 
 set -e
 
