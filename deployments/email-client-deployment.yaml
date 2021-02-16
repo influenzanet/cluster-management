@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: email-client
-        image: sajeeth1009/email-client-service-image:v0.9.0
+        image: sajeeth1009/email-client-service-image:v0.9.1
         imagePullPolicy: Always
         env:
         - name: EMAIL_CLIENT_SERVICE_LISTEN_PORT
