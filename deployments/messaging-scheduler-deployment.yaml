@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: message-scheduler
-        image: sajeeth1009/message-scheduler-image:v0.9.0
+        image: sajeeth1009/message-scheduler-image:v0.9.1
         imagePullPolicy: Always
         env:
         - name: GLOBAL_DB_CONNECTION_STR
