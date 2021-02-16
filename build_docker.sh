@@ -15,6 +15,7 @@ imagename="web-client-italy-image"
 cd $microservice
 git pull
 version=`git describe --tags --abbrev=0`
+cp ../web-app.env .env.local
 make docker
 docker tag github.com/influenzanet/web-app:$version sajeeth1009/$imagename:$version
 docker push sajeeth1009/$imagename:$version
