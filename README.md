@@ -29,12 +29,11 @@ This guide consists of two sections:
 4. Pull Permissions on all relevant Influenza Net repositories
 
 ### Build Steps
-1. Run build_docker.sh
-2. Docker might require sudo permissions to complete the build.
-3. Enter the credentials for the docker repository if asked.
-4. For building the web app, enter into the cloned web-app directory
-5. Create a new .env.local file and enter the required env variables mentioned in the repository for web-app
-6. Re-run the build_docker.sh
+1. First fill in the contents of web-app.env. This contains environment variables required to build the web-app
+2. The contents to go into this file are present in the ReadMe for the web-app application.
+3. Run build_docker.sh
+4. Docker might require sudo permissions to complete the build.
+5. Enter the credentials for the docker repository if asked.
 ----------------
 
 ## Section 2: **Creating a deployment of the docker hub images on a Kubernetes Cluster**

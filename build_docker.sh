@@ -15,6 +15,7 @@ imagename="web-app"
 cd $microservice
 git pull
 version=`git describe --tags --abbrev=0`
+cp ../web-app.env .env.local
 make docker
 docker tag github.com/influenzanet/web-app:$version infectieradarbe/$imagename:$version
 docker push infectieradarbe/$imagename:$version
