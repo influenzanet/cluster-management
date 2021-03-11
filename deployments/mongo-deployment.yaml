@@ -41,7 +41,7 @@ spec:
             memory: 150Mi
           limits:
             cpu: 200m
-            memory: 300Mi
+            memory: 1Gi
         volumeMounts:
         - mountPath: "/data/db"
           name: task-pv-storage
