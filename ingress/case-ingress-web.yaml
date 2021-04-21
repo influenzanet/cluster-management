@@ -23,4 +23,4 @@ spec:
           - backend:
               serviceName: web-client-service
               servicePort: 3100
-            path: /(home|faq|privacy|about|disclaimer|accessibility|contact|settings|link|survey|results)(.*)
+            path: /(home|faq|privacy|about|disclaimer|accessibility|contact|settings|link|survey|results|welcome)(.*)

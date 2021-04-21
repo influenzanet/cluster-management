@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: web-client
-        image: infectieradarbe/web-app:latest
+        image: infectieradarbe/participant-webapp:v0.0.1
         imagePullPolicy: Always
         ports:
         - containerPort: 3100
