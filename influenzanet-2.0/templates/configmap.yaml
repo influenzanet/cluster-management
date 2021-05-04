@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: email-server-config
+  namespace: case
+data:
+  smtp-servers.yaml: |
+    {{ .Values.emailServer }}
+  high-prio-smtp-servers.yaml: |
+    {{ .Values.priorityEmailServer }}
