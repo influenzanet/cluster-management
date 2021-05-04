@@ -1,0 +1,54 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-web
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }} 
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+  - hosts:
+    - {{ .Values.domain }}
+    secretName: site-tls-web
+  rules:
+    - host: {{ .Values.domain }}
+      http:
+        paths:
+          - backend:
+              serviceName: web-client-service
+              servicePort: 3100
+            path: /
+          - backend:
+              serviceName: web-client-service
+              servicePort: 3100
+            path: /(?!api|admin)
+
+---
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer:  {{ .Values.clusterIssuer}}
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  tls:
+  - hosts:
+    - {{ .Values.domain }}
+    secretName: site-tls
+  rules:
+    - host: {{ .Values.domain }}
+      http:
+        paths:
+          - path: {{ .Values.participantApiPath }}(/|$)(.*)
+            backend:
+              serviceName: participant-api-service
+              servicePort: 3231
+          - path: {{ .Values.managementApiPath }}(/|$)(.*)
+            backend:
+              serviceName: management-api-service
+              servicePort: 3232

@@ -4,6 +4,30 @@
 
 namespace: case
 
+# Replace this with the domain name for Influenzanet Application
+domain: example.com
+participantApiPath: "/api"
+managementApiPath: "/admin"
+
+
+# TLS Certificate Issuer Section
+clusterIssuer : "letsencrypt-prod-site"
+acmeServer: https://acme-v02.api.letsencrypt.org/directory
+connectedEmail: sajeeth.sadananda@isi.it
+
+# Secrets Configuration Section
+jwtKey: ""
+mongoUsername: "admin"
+mongoPassword: "abc123"
+mongoConnectionPrefix: ""
+googleRecaptchaKey: "<insert-base64-key-here>"
+
+# Persistant Storage Section
+storageClass: standard
+accessModes:
+  - ReadWriteOnce
+storageRequested: 50Gi
+
 # Email service configuration
 ## Regular Email Server
 smtpServers: |
