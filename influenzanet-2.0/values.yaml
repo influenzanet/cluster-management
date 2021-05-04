@@ -6,34 +6,34 @@ namespace: case
 
 # Email service configuration
 ## Regular Email Server
-emailServer:
-  from: '"InfluenzaNet General" username@email.com'
-      sender: username@email.com
-      replyTo:
-          - username@email.com
-      servers:
-          - host: smtp.gmail.com
-            port: 465
-            connections: 2
-            sendTimeout: 5
-            auth:
-                user: username@email.com
-                password: "password" 
+smtpServers: |
+  from: "username@email.com"
+  sender: username@email.com
+  replyTo:
+    - username@email.com
+  servers:
+    - host: smtp.gmail.com
+      port: 465
+      connections: 2
+      sendTimeout: 5
+      auth:
+        user: username@email.com
+        password: "password" 
 
 ## High Priority email server
-priorityEmailServer:
-  from: '"InfluenzaNet General" username@email.com'
-      sender: username@email.com
-      replyTo:
-          - username@email.com
-      servers:
-          - host: smtp.gmail.com
-            port: 465
-            connections: 2
-            sendTimeout: 5
-            auth:
-                user: username@email.com
-                password: "password"
+prioSmtpServers: |
+  from: "username@email.com"
+  sender: username@email.com
+  replyTo:
+    - username@email.com
+  servers:
+    - host: smtp.gmail.com
+      port: 465
+      connections: 2
+      sendTimeout: 5
+      auth:
+        user: username@email.com
+        password: "password" 
 
 replicaCount: 1
 
