@@ -59,82 +59,71 @@ prioSmtpServers: |
         user: username@email.com
         password: "password" 
 
-replicaCount: 1
-
-image:
-  repository: nginx
-  pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
-
-imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
-
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-podAnnotations: {}
-
-podSecurityContext: {}
-  # fsGroup: 2000
-
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
-
-service:
-  type: ClusterIP
-  port: 80
-
-ingress:
-  enabled: false
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
-      paths:
-      - path: /
-        backend:
-          serviceName: chart-example.local
-          servicePort: 80
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
-
-nodeSelector: {}
-
-tolerations: []
-
-affinity: {}
+# Deployment and Service configurations for each micro-service.
+## Add to this list to deploy additional micro-services
+microservices:
+  # EMAIL CLIENT
+  email-client:
+    deployment:
+      name: email-client
+      spec:
+        replicas: 1
+        selector:
+          matchLabels:
+            app: email-client
+        template:
+          metadata:
+            labels:
+              app: email-client
+          spec:
+            containers:
+            - name: email-client
+              image: sajeeth1009/email-client-service-image:v0.9.1
+              imagePullPolicy: Always
+              env:
+              - name: EMAIL_CLIENT_SERVICE_LISTEN_PORT
+                value: "5005"
+              - name: MESSAGING_CONFIG_FOLDER
+                value: "/config"
+              volumeMounts:
+              - name: config-volume
+                mountPath: /config/
+              ports:
+              - containerPort: 5005
+                protocol: TCP
+              - containerPort: 465
+                name: smtpssl
+                protocol: TCP
+              - containerPort: 587
+                name: smtpauth
+                protocol: TCP
+              resources:
+                requests:
+                  cpu: 30m
+                  memory: 150Mi
+                limits:
+                  cpu: 100m
+                  memory: 300Mi
+            volumes:
+            - name: config-volume
+              configMap:
+                name: email-server-config
+    service:
+      name: email-client-service
+      spec:
+        type: NodePort
+        selector:
+          app: email-client
+        ports:
+        - name: grpc
+          port: 5005
+          protocol: TCP
+          targetPort: 5005
+        - name: smtpssl-svc
+          port: 465
+          protocol: TCP
+          targetPort: 465
+        - name: smtpauth-svc
+          port: 587
+          protocol: TCP
+          targetPort: 587
