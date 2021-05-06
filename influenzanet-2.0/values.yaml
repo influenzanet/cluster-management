@@ -28,7 +28,7 @@ accessModes:
   - ReadWriteOnce
 storageRequested: 50Gi
 
-# Email service configuration
+# Email service SMTP configuration
 ## Regular Email Server
 smtpServers: |
   from: "username@email.com"
