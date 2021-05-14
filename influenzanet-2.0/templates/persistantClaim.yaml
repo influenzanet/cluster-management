@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: task-pv-claim
+  namespace: {{ .Values.namespace }}
+spec:
+  storageClassName: standard
+  accessModes: {{ .Values.accessModes }}
+  resources:
+    requests:
+      storage: {{ .Values.storageRequested }}   

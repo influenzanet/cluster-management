@@ -5,38 +5,11 @@ This guide will walk you through creating a Kubernetes deployment for CASE - Sur
 
 ## Dependencies
 
-0. Ensure make is installed
-1. Docker is installed
-2. Docker daemon is running
-3. kubernetes is installed on a cluster
+0. Ensure that docker images are built and hosted at Dockerhub. See getting-started guide for instructions on setting this up.
+1. A cluster with Kubernetes installed.
+2. git
 
-This guide consists of two sections:
-
--  **Building Images & Uploading to Docker Hub**: This section will help you check out code locally, create a docker image and upload it onto docker hub.
-
--  **Creating a deployment of the docker hub images on a Kubernetes Cluster**: Asa explained, this will guide you in creating a fresh deployment on a requisitioned cluster running kubernetes.
-
-**If you wish to use pre-existing docker images instead of recreating your own skip ahead of the first section to the deployment section (Section 2)**
-
-## Section 1: Building Images & Uploading to Docker Hub
-
-### Dependencies
-
-0. Ensure make is installed
-1. Docker is installed
-2. Docker daemon is running
-3. Appropriate push access to the docker hub repository
-4. Pull Permissions on all relevant Influenza Net repositories
-
-### Build Steps
-1. First fill in the contents of web-app.env. This contains environment variables required to build the web-app
-2. The contents to go into this file are present in the ReadMe for the web-app application.
-3. Run build_docker.sh
-4. Docker might require sudo permissions to complete the build.
-5. Enter the credentials for the docker repository if asked.
-----------------
-
-## Section 2: **Creating a deployment of the docker hub images on a Kubernetes Cluster**
+## **Creating a deployment of the docker hub images on a Kubernetes Cluster**
 
 ### Dependencies
 
@@ -47,21 +20,44 @@ This guide consists of two sections:
   
 ### Set up
 
- Before proceeding ensure the values are correct within the files
+Before proceeding, configure the values.yaml to reflect the details of your deployment. You can either edit the influenzanet-2.0/values.yaml or create a copy of the file and edit that instead.
 
-1. secrets/secrets.yaml : Here we configure secrets such as database passwords/ jwt / (recaptcha keys in base64)
-2. configmaps/email-config.yaml: Here we need to update the contents of the SMTP server as well as the high priority SMTP server used for mailing.
-3. Under the folder deployment, files representing each of the micro services are located (*-deployment.yaml files). Here edit the files to reflect the correct values for each of the environment variables. For example: Setting the value of the cors allowed origins field in both participant and management api deployment files.
-4. Update the files in the inginx-ngress folder to reflect the domain name to be used.
-5. Update the domain name in the deployment files. (currently set to 'case.com')
+In the values.yaml files, sections represent the following configurations:
+1. namespace, domain and backend path configurations,
+2. TLS certificate configurations,
+3. Secret - JWT, Mongo credentials, recaptcha configurations,
+4. Persistant volume configurations (for mongo), 
+5. SMTP configurations for Email sending,
+6. Microservice sections -> containing configurations of the deployment and service files for each of the microservices. This includes docker image paths for each microservice, environment variables, port configurations and persistant volume attachments if needed.
+
+**Once these have been configured, run the install_start.sh script to install certificate-manager, nginx ingress load-balancer and the influenzanet 2.0 application.**
+
+If you chose to use an edited copy of the values.yaml file, to run the installation run the following commands:
+```
+# Install the ingress load balancer up front
+helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+helm repo update
+helm install nginx-controller ingress-nginx/ingress-nginx
+
+
+# Install the certificate manager
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml
+
+# Waiting for installation complete
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=120s
+
+helm install -f <your-edited0valuesfile.yaml> influenzanet-2.0 ./influenzanet-2.0
+```
 
 ### Deployment Steps
 Once the repository has been checked out into the server:
-1. Set up the environment variables, domain information, deployment files, and secrets as mentioned in the previous section.
-2. Run the deployment script install_start.sh for the first time you set up the system.
-3. To stop and clean up run stop.sh (this removes everything except for already created certificates)
+1. Run the deployment script install_start.sh for the first time you set up the system.
+3. To stop and clean up run stop.sh
 3. To run the system after the initial set up, run start.sh. (prevents unnecessary reinstallation of nginx ingress & certificate manager)
-4. Manual deletion of nginx ingress controller/ certificates / certificate manager is required.
+4. Manual running of the helm install and uninstall is required in case of an edited values.yaml file.
 
 ### Troubleshooting
 
