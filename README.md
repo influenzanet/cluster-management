@@ -105,3 +105,9 @@ Once the repository has been checked out into the server:
 			protocol: TCP
 			targetPort: 465
 	```
+7. In case the script start.sh or install_start.sh fails with an error: Failed to connect to Kubernetes cluster. Ensure that you run the following in the google connect console.
+	```
+	gcloud container clusters get-credentials influweb-italy-cluster --zone europe-west1-d --project infuweb-italy
+	```
+	This will allow you to set the credentials to gain access to run the script.
+	If this fails too, then try executing the instructions in the install_start.sh script manually in the terminal.
