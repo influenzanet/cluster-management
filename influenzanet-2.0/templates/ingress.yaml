@@ -23,7 +23,7 @@ spec:
           - backend:
               serviceName: web-client-service
               servicePort: 3100
-            path: /(?!api|admin)
+            path: /(home|faq|news|privacy|about|disclaimer|accessibility|contact|settings|link|survey|results|welcome)(.*)
 
 ---
 apiVersion: networking.k8s.io/v1beta1
