@@ -25,10 +25,19 @@ Before proceeding, configure the values.yaml to reflect the details of your depl
 In the values.yaml files, sections represent the following configurations:
 1. namespace, domain and backend path configurations,
 2. TLS certificate configurations,
-3. Secret - JWT, Mongo credentials, recaptcha configurations,
-4. Persistant volume configurations (for mongo), 
-5. SMTP configurations for Email sending,
-6. Microservice sections -> containing configurations of the deployment and service files for each of the microservices. This includes docker image paths for each microservice, environment variables, port configurations and persistant volume attachments if needed.
+3. Secret - JWT, Mongo credentials, recaptcha configurations  
+	3.1 How to get a recaptcha key:  
+		Navigate to https://www.google.com/recaptcha/about/  
+		Click on the admin console, and then click the plus icon. Give a suitable label.  
+		Select reCAPTCHA v2 and an invisible recaptcha badge in the options  
+		Add the domain , i.e. Influweb.org  
+		Click submit, this should generate two keys, a public key and  a secret key.  
+		Copy the public key and paste it in the REACT_APP_RECAPTCHA_SITEKEY field in your sample-env.config file in the participant-webapp  
+		Next, copy the secret key and convert it to a base-64 format (you can use https://www.base64encode.org/ to perform this conversion)  
+
+5. Persistant volume configurations (for mongo), 
+6. SMTP configurations for Email sending,
+7. Microservice sections -> containing configurations of the deployment and service files for each of the microservices. This includes docker image paths for each microservice, environment variables, port configurations and persistant volume attachments if needed.
 
 **Once these have been configured, run the install_start.sh script to install certificate-manager, nginx ingress load-balancer and the influenzanet 2.0 application.**
 
