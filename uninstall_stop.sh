@@ -1,6 +1,4 @@
-kubectl delete --all services,deploy,pods --namespace case
-
-helm uninstall influenzanet-2.0 ./influenzanet-2.0
+sh stop.sh
 
 helm uninstall nginx-controller
 

@@ -3,8 +3,8 @@ helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo update
 helm install nginx-controller ingress-nginx/ingress-nginx
 
-# Waiting for installation complete
-kubectl wait --namespace ingress-nginx \
+# Waiting for installation complete ()
+kubectl wait --namespace default \
   --for=condition=ready pod \
   --selector=app.kubernetes.io/component=controller \
   --timeout=120s
@@ -19,4 +19,4 @@ kubectl wait --namespace cert-manager \
 
 sleep 10
 
-helm install influenzanet-2.0 ./influenzanet-2.0
+sh start.sh
