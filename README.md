@@ -1,23 +1,30 @@
- 
-# Running a kubernetes deployment - CASE
 
-This guide will walk you through creating a Kubernetes deployment for CASE - Survey System. It will walk you through creating individual images for each of the repositories and deploying them on to a running kubernetes cluster.
+# Running a kubernetes deployment
+
+This guide will walk you through creating a Kubernetes deployment for the Influenzanet platform. It will walk you through creating individual images for each of the repositories and deploying them on to a running Kubernetes cluster.
 
 ## Dependencies
 
-0. Ensure that docker images are built and hosted at Dockerhub. See getting-started guide for instructions on setting this up.
-1. A cluster with Kubernetes installed.
-2. git
+1. Docker images for each service must be built and hosted at your Dockerhub repository. See [influenzanet-setup-guide](https://github.com/influenzanet/influenzanet-setup-guide) for instructions on setting this up.
 
-## **Creating a deployment of the docker hub images on a Kubernetes Cluster**
+2. A cluster with Kubernetes installed.
+
+## Creating a deployment of the docker hub images on a Kubernetes Cluster
 
 ### Dependencies
 
-0. Kubernetes service running on a cluster
-1. Clone the repository by running the command: ``` git clone https://github.com/influenzanet/cluster-management.git```
+1. Kubernetes service running on a cluster
+
 2. Ingress is enabled on the cluster.
+
 3. A suitable domain name is present for the server.
-  
+
+4. A clone of this repository
+
+   ```sh
+   git clone https://github.com/influenzanet/cluster-management.git
+   ```
+
 ### Set up
 
 Before proceeding, configure the values.yaml to reflect the details of your deployment. You can either edit the influenzanet-2.0/values.yaml or create a copy of the file and edit that instead.
@@ -70,53 +77,59 @@ Once the repository has been checked out into the server:
 
 ### Troubleshooting
 
-1. When deploying on minikube enable the NGINX Ingress controller by running the following command:
-	```
-	minikube addons enable ingress
-	```
-2. Verify that the NGINX Ingress controller is running
-	```
-	kubectl get pods -n kube-system
-	```
-3. Check the status of the deployments by running the following commands:
-	```
-	kubectl get deployments,services,pods --namespace=case
-	
-	```
-4. On GKE sometimes webhook creation might fail for nginx admission, to get past this error run the following:
-	```
-	kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
-	```
-5. Lets encrypt (which is used for certificate creation) has a duplicate certificate creation limit of 5 per week. 
-	```
-	check logs of the created certificate by runnning
-	kubectl describe certificate <cert-name> -n case
-	```
-6. In case of errors in mail sending, you might have to edit the nginx ingress controller deployment and add the following ports
-	```
+1. Verify that the NGINX Ingress controller is running
 
+  ```
+  kubectl get pods -n kube-system
+  ```
+
+2. Check the status of the deployments by running the following commands:
+
+  ```
+  kubectl get deployments,services,pods --namespace=[influenzanet_namespace]
+  ```
+
+3. On GKE sometimes webhook creation might fail for nginx admission, to get past this error run the following:
+
+  ```
+  kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
+  ```
+
+4. Lets encrypt (which is used for certificate creation) has a duplicate certificate creation limit of 5 per week.  Check logs of the created certificate by runnning
+
+  ```
+  kubectl describe certificate <cert-name> -n [influenzanet_namespace]
+  ```
+
+6. In case of errors in mail sending, you might have to edit the nginx ingress controller deployment and add the following ports
+
+  ```
         - containerPort: 465
           name: smtpssl
           protocol: TCP
         - containerPort: 587
           name: smtpauth
           protocol: TCP
-	```
+  ```
 
-	and to the nginx controller service the following: 
-	```
-		- name: smtp
-			port: 587
-			protocol: TCP
-			targetPort: 587
-		- name: smtpssl
-			port: 465
-			protocol: TCP
-			targetPort: 465
-	```
-7. In case the script start.sh or install_start.sh fails with an error: Failed to connect to Kubernetes cluster. Ensure that you run the following in the google connect console.
-	```
-	gcloud container clusters get-credentials influweb-italy-cluster --zone europe-west1-d --project infuweb-italy
-	```
-	This will allow you to set the credentials to gain access to run the script.
-	If this fails too, then try executing the instructions in the install_start.sh script manually in the terminal.
+  and to the nginx controller service the following:
+
+  ```
+    - name: smtp
+      port: 587
+      protocol: TCP
+      targetPort: 587
+    - name: smtpssl
+      port: 465
+      protocol: TCP
+      targetPort: 465
+  ```
+
+7. In case the script `start.sh` or `install_start.sh` fails with an error: _"Failed to connect to Kubernetes cluster"_, ensure that you run the following in the google connect console.
+
+  ```
+  gcloud container clusters get-credentials influweb-italy-cluster --zone europe-west1-d --project infuweb-italy
+  ```
+
+  This will allow you to set the credentials to gain access to run the script.
+  If this fails too, then try executing the instructions in the `install_start.sh` script manually in the terminal.
