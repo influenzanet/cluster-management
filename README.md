@@ -27,7 +27,7 @@ This guide will walk you through creating a Kubernetes deployment for the Influe
 
 ### Set up
 
-Before proceeding, configure the values.yaml to reflect the details of your deployment. You can either edit the influenzanet-2.0/values.yaml or create a copy of the file and edit that instead.
+Before proceeding, configure the values.yaml to reflect the details of your deployment.
 
 In the values.yaml files, sections represent the following configurations:
 1. namespace, domain and backend path configurations,
@@ -48,32 +48,15 @@ In the values.yaml files, sections represent the following configurations:
 
 **Once these have been configured, run the install_start.sh script to install certificate-manager, nginx ingress load-balancer and the influenzanet 2.0 application.**
 
-If you chose to use an edited copy of the values.yaml file, to run the installation run the following commands:
-```
-# Install the ingress load balancer up front
-helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo update
-helm install nginx-controller ingress-nginx/ingress-nginx
-
-
-# Install the certificate manager
-kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml
-
-# Waiting for installation complete
-kubectl wait --namespace ingress-nginx \
-  --for=condition=ready pod \
-  --selector=app.kubernetes.io/component=controller \
-  --timeout=120s
-
-helm install -f <your-edited0valuesfile.yaml> influenzanet-2.0 ./influenzanet-2.0
-```
-
 ### Deployment Steps
-Once the repository has been checked out into the server:
-1. Run the deployment script install_start.sh for the first time you set up the system.
-3. To stop and clean up run stop.sh
-3. To run the system after the initial set up, run start.sh. (prevents unnecessary reinstallation of nginx ingress & certificate manager)
-4. Manual running of the helm install and uninstall is required in case of an edited values.yaml file.
+
+Once the repository has been checked out into the server and your configuration is in place:
+
+1. Run the deployment script `install_start.sh` for the first time you set up the system.
+
+2. To stop and clean up the Influenzanet services from the cluster run `stop.sh`
+
+3. To reinstall the Influenzanet services platform after a clean-up, only run `start.sh` (prevents unnecessary re-installation of nginx ingress & certificate manager)
 
 ### Troubleshooting
 
