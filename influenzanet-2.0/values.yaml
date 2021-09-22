@@ -23,7 +23,7 @@ mongoConnectionPrefix: ""
 googleRecaptchaKey: "<insert-base64-key-here>"
 
 # Persistant Storage Section
-storageClass: standard
+storageClass: influenzanet-storage
 accessModes:
   - ReadWriteOnce
 storageRequested: 50Gi
