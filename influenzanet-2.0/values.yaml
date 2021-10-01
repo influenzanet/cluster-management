@@ -507,9 +507,9 @@ microservices:
               app: mongo
           spec:
             volumes:
-            - name: task-pv-storage
+            - name: database-pv
               persistentVolumeClaim:
-                claimName: task-pv-claim
+                claimName: database-pv-claim
             containers:
             - name: mongo
               image: mongo:latest
@@ -528,7 +528,7 @@ microservices:
               - containerPort: 27017
               volumeMounts:
               - mountPath: "/data/db"
-                name: task-pv-storage
+                name: database-pv
     service:
       name: mongo-atlas-service
       spec:

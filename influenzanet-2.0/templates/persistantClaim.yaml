@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: task-pv-claim
+  name: database-pv-claim
   namespace: {{ .Values.namespace }}
 spec:
   storageClassName: {{ .Values.storageClass }}
@@ -13,10 +13,10 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: backup-pv-claim
+  name: backups-pv-claim
   namespace: {{ .Values.namespace }}
 spec:
-  storageClassName: standard
+  storageClassName: {{ .Values.storageClass }}
   accessModes: {{ .Values.accessModes }}
   resources:
     requests:
