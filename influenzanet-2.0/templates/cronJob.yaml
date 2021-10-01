@@ -1,0 +1,53 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: backup-mongodb
+  namespace: {{ $.Values.namespace }}
+spec:
+  schedule: "0 0 * * *"
+  concurrencyPolicy: Forbid
+  suspend: false
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          volumes:
+            - name: backups-pv
+              persistentVolumeClaim:
+                claimName: backups-pv-claim
+          restartPolicy: OnFailure
+          containers:
+          - name: backup-mongodb
+            image: mongo:latest
+            env:
+              - name: MONGODB_URI
+                value: mongo-atlas-service:27017
+              - name: MONGODB_USER
+                valueFrom:
+                  secretKeyRef:
+                    name: case-mongodb-atlas
+                    key: username
+              - name: MONGODB_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: case-mongodb-atlas
+                    key: password
+            command:
+            - /bin/sh
+            - -c
+            - |
+              date;
+              echo "Running scheduled mongodb backup";
+              mkdir -p /data/backups;
+              mongodump \
+              --archive="/data/backups/dump_$(date +%Y%m%d_%H%M%S).gz" \
+              --gzip \
+              --uri="mongodb://$MONGODB_URI" \
+              -u "$MONGODB_USER" \
+              -p "$MONGODB_PASSWORD";
+              echo "DONE";
+            volumeMounts:
+              - mountPath: "/data/backups"
+                name: backups-pv
