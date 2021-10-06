@@ -605,11 +605,11 @@ microservices:
                     name: case-mongodb-atlas
                     key: password
               - name: STUDY_TIMER_EVENT_FREQUENCY
-                value: "2"
+                value: "86400"
               - name: STUDY_TIMER_EVENT_CHECK_INTERVAL_MIN
-                value: "2"
+                value: "3600"
               - name: STUDY_TIMER_EVENT_CHECK_INTERVAL_VAR
-                value: "1"
+                value: "900"
               - name: STUDY_GLOBAL_SECRET
                 value: ""
               - name: ADDR_LOGGING_SERVICE
