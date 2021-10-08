@@ -39,6 +39,7 @@ spec:
             - -c
             - |
               date;
+              df -B1 /data/backups;
               echo "Running scheduled mongodb backup";
               mkdir -p /data/backups;
               mongodump \
@@ -46,8 +47,8 @@ spec:
               --gzip \
               --uri="mongodb://$MONGODB_URI" \
               -u "$MONGODB_USER" \
-              -p "$MONGODB_PASSWORD";
-              echo "DONE";
+              -p "$MONGODB_PASSWORD" 2>&1;
+              if [ "$?" = "0" ]; then echo "DONE";else 1>&2 echo "FAILED";exit 1;fi
             volumeMounts:
               - mountPath: "/data/backups"
                 name: backups-pv
