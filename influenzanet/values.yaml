@@ -6,6 +6,10 @@ namespace: case
 
 # Replace this with the domain name for Influenzanet Application
 domain: example.com
+# Replace this with a list of domains to be included in the certificate
+tlsDomains:
+  - example.com
+
 participantApiPath: "/api"
 managementApiPath: "/admin"
 

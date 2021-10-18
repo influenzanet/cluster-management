@@ -7,10 +7,12 @@ metadata:
     kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }}
     nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
 spec:
   tls:
   - hosts:
-    - {{ .Values.domain }}
+{{ toYaml .Values.tlsDomains | indent 4}}
     secretName: site-tls-web
   rules:
     - host: {{ .Values.domain }}
