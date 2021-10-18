@@ -5,8 +5,8 @@ metadata:
   namespace: {{ .Values.namespace }}
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }} 
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }}
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
 spec:
   tls:
   - hosts:
@@ -17,38 +17,23 @@ spec:
       http:
         paths:
           - backend:
-              serviceName: web-client-service
-              servicePort: 3100
-            path: /
+              serviceName: participant-api-service
+              servicePort: 3231
+            path: {{ .Values.participantApiPath }}/(.*)
+          - backend:
+              serviceName: management-api-service
+              servicePort: 3232
+            path: {{ .Values.managementApiPath }}/(.*)
+            pathType: ImplementationSpecific
           - backend:
               serviceName: web-client-service
               servicePort: 3100
-            path: /(home|faq|news|privacy|about|disclaimer|accessibility|contact|settings|link|survey|results|welcome)(.*)
-
----
-apiVersion: networking.k8s.io/v1beta1
-kind: Ingress
-metadata:
-  name: ingress
-  namespace: {{ .Values.namespace }}
-  annotations:
-    kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer:  {{ .Values.clusterIssuer}}
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-spec:
-  tls:
-  - hosts:
-    - {{ .Values.domain }}
-    secretName: site-tls
-  rules:
-    - host: {{ .Values.domain }}
-      http:
-        paths:
-          - path: {{ .Values.participantApiPath }}(/|$)(.*)
-            backend:
-              serviceName: participant-api-service
-              servicePort: 3231
-          - path: {{ .Values.managementApiPath }}(/|$)(.*)
-            backend:
-              serviceName: management-api-service
-              servicePort: 3232
+            path: /((manifest.json|robots.txt))
+          - backend:
+              serviceName: web-client-service
+              servicePort: 3100
+            path: /((static|assets)/.*)
+          - backend:
+              serviceName: web-client-service
+              servicePort: 3100
+            path: /.*
