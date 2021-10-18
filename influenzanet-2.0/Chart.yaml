@@ -1,6 +1,6 @@
 apiVersion: v2
-name: influenzanet-2.0
-description: A Helm chart for installation of Influenzanet 2.0 on a kubernetes environment
+name: influenzanet
+description: A Helm chart for installation of Influenzanet on a kubernetes environment
 
 # A chart can be either an 'application' or a 'library' chart.
 #

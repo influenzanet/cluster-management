@@ -1,1 +1,1 @@
-helm uninstall influenzanet-2.0
+helm uninstall influenzanet
