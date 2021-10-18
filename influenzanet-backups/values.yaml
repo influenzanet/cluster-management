@@ -1,0 +1,6 @@
+namespace: case
+
+storageClass: influenzanet-storage
+accessModes:
+  - ReadWriteOnce
+storageRequested: 50Gi
