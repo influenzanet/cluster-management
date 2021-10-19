@@ -1,0 +1,5 @@
+namespace: case
+
+domain: example.com
+
+clusterIssuer : "letsencrypt-prod-site"
