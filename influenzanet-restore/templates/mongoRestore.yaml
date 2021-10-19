@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-restore
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: mongo-restore
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-restore
+  template:
+    metadata:
+      labels:
+        app: mongo-restore
+    spec:
+      volumes:
+        - name: backups-pv
+          persistentVolumeClaim:
+            claimName: backups-pv-claim
+      containers:
+      - name: mongo-restore
+        image: bash
+        command: [ "/usr/local/bin/bash", "-c", "--" ]
+        args: [ "while true; do sleep 30; done;" ]
+        volumeMounts:
+          - mountPath: "/data/backups"
+            name: backups-pv
