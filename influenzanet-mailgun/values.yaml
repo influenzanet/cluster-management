@@ -1,0 +1,7 @@
+namespace: case
+
+domain: example.com
+
+clusterIssuer : "letsencrypt-prod-site"
+
+endpoint: /mailgun-webhook-[random_part]
