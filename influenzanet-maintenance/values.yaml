@@ -3,3 +3,5 @@ namespace: case
 domain: example.com
 
 clusterIssuer : "letsencrypt-prod-site"
+
+allowAgent: [random_string_here]
