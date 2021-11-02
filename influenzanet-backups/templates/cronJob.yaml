@@ -2,7 +2,7 @@ apiVersion: batch/v1beta1
 kind: CronJob
 metadata:
   name: backup-mongodb
-  namespace: {{ $.Values.namespace }}
+  namespace: {{ .Values.namespace }}
 spec:
   schedule: "0 0 * * *"
   concurrencyPolicy: Forbid
@@ -24,7 +24,7 @@ spec:
             image: mongo:latest
             env:
               - name: MONGODB_URI
-                value: mongo-atlas-service:27017
+                value: {{ .Values.mongodbUri }}
               - name: MONGODB_USER
                 valueFrom:
                   secretKeyRef:
