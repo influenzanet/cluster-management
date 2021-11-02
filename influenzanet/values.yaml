@@ -13,6 +13,7 @@ tlsDomains:
 participantApiPath: "/api"
 managementApiPath: "/admin"
 
+simplifiedIngress: false
 
 # TLS Certificate Issuer Section
 clusterIssuer : "letsencrypt-prod-site"

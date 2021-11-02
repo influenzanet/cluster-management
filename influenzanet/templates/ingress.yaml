@@ -27,6 +27,12 @@ spec:
               servicePort: 3232
             path: {{ .Values.managementApiPath }}/(.*)
             pathType: ImplementationSpecific
+{{ if eq .Values.simplifiedIngress true }}
+          - backend:
+              serviceName: web-client-service
+              servicePort: 3100
+            path: /(.*)
+{{ else  }}
           - backend:
               serviceName: web-client-service
               servicePort: 3100
@@ -39,3 +45,4 @@ spec:
               serviceName: web-client-service
               servicePort: 3100
             path: /.*
+{{ end }}
