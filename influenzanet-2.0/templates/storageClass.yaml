@@ -6,4 +6,5 @@ metadata:
   annotations:
 provisioner: kubernetes.io/gce-pd
 reclaimPolicy: Retain
+allowVolumeExpansion: true
 volumeBindingMode: Immediate
