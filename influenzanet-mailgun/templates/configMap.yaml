@@ -20,8 +20,9 @@ data:
 
       if (event['log-level'] == 'error') {
         console.error(`[${event.id}] Error: ${event.event}, reason: ${event.reason}, severity: ${event.severity}`);
-        console.log(`[${event.id}] Delivery status ${event['delivery-status'].description}`);
-        console.log(`[${event.id}] Subject: ${event.message.headers.subject}`);
+        console.log(`[${event.id}] Delivery status (description): ${event['delivery-status']?.description}`);
+        console.log(`[${event.id}] Delivery status (message): ${event['delivery-status']?.message}`);
+        console.log(`[${event.id}] Subject: ${event?.message?.headers?.subject}`);
       }
 
       res.end();
