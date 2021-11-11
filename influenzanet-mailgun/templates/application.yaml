@@ -22,7 +22,7 @@ spec:
       containers:
       - name: mailgun-webhook
         imagePullPolicy: IfNotPresent
-        image: influweb/mailgun-webhook
+        image: {{ .Values.image }}
         workingDir: /app
         command: [ "node", "webhook/server.js"]
         volumeMounts:
