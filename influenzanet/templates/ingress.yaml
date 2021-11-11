@@ -1,0 +1,48 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-web
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }}
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
+spec:
+  tls:
+  - hosts:
+{{ toYaml .Values.tlsDomains | indent 4}}
+    secretName: site-tls-web
+  rules:
+    - host: {{ .Values.domain }}
+      http:
+        paths:
+          - backend:
+              serviceName: participant-api-service
+              servicePort: 3231
+            path: {{ .Values.participantApiPath }}/(.*)
+          - backend:
+              serviceName: management-api-service
+              servicePort: 3232
+            path: {{ .Values.managementApiPath }}/(.*)
+            pathType: ImplementationSpecific
+{{ if eq .Values.simplifiedIngress true }}
+          - backend:
+              serviceName: web-client-service
+              servicePort: 3100
+            path: /(.*)
+{{ else  }}
+          - backend:
+              serviceName: web-client-service
+              servicePort: 3100
+            path: /((manifest.json|robots.txt))
+          - backend:
+              serviceName: web-client-service
+              servicePort: 3100
+            path: /((static|assets)/.*)
+          - backend:
+              serviceName: web-client-service
+              servicePort: 3100
+            path: /.*
+{{ end }}
