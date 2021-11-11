@@ -1,2 +1,2 @@
-image: influweb/mailgun-webhook:v1
-endpoint: /mailgun-webhook-[random_part]
+image: [dockerhub-repo]/mailgun-webhook
+endpoint: [endpoint-url-path]
