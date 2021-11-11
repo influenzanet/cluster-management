@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: maintenance-page
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: maintenance-page
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: maintenance-page
+  template:
+    metadata:
+      labels:
+        app: maintenance-page
+    spec:
+      volumes:
+        - name: maintenance-volume
+          configMap:
+            name: maintenance-config
+      containers:
+      - name: maintenance-page
+        image: nginx
+        volumeMounts:
+          - mountPath: "/etc/nginx/conf.d"
+            name: maintenance-volume
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: maintenance-service
+  namespace: {{ $.Values.namespace }}
+spec:
+  type: NodePort
+  selector:
+    app: maintenance-page
+  ports:
+  - port: 3100
+    targetPort: 80

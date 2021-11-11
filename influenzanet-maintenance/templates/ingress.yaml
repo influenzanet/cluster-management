@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-maintenance
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }}
+    nginx.ingress.kubernetes.io/server-snippet: |
+
+      if ($http_user_agent != "{{ .Values.allowAgent}}"){
+        return 503;
+      }
+
+      error_page 503 = @errorpage;
+
+      location @errorpage {
+        proxy_set_header X-Code $status;
+        proxy_pass http://maintenance-service.italy.svc.cluster.local:3100;
+      }
+spec:
+  tls:
+  - hosts:
+    - {{ .Values.domain }}
+    secretName: site-tls-web
+  rules:
+    - host: {{ .Values.domain }}
+      http:
+        paths:
+          - backend:
+              serviceName: maintenance-service
+              servicePort: 3100
+            path: /
