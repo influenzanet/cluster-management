@@ -1,0 +1,2 @@
+image: [dockerhub-repo]/mailgun-webhook
+endpoint: [endpoint-url-path]
