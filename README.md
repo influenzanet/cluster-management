@@ -27,14 +27,16 @@ This guide will walk you through creating a Kubernetes deployment for the Influe
 
 ### Set up
 
-Before proceeding, configure the `influenzanet-2.0/values.yaml` file to reflect the details of your deployment. In the `values.yaml` file you will find the following configuration values:
+Before proceeding, configure the `influenzanet/values.yaml` file to reflect the details of your deployment. In the `values.yaml` file you will find the following configuration values:
 
 1. namespace, domain and back-end path configurations
 
     - `namespace`: the namespace under which each Kubernets component of Influenzanet will be registered, eg: `italy`
     - `domain`: the domain name hosting the platform, eg: `influweb.org`
+    - `tlsDomains`: array of additional domain names redirected to the base domain, eg: `[influweb.org, influweb.it]`
     - `participantApiPath`: the path under which the participant API are served, eg: `/api`
     - `managementApiPath`: the path under which the management API are served, eg: `/admin`
+    - `simplifiedIngress`: set this to `true` if your `web-client` image is configured for using `try_files`
 
 2. TLS certificate configurations
 
@@ -58,7 +60,7 @@ Before proceeding, configure the `influenzanet-2.0/values.yaml` file to reflect 
 
     Detailed information on these configuration values can be found in Kubernetes' documentation on [Persistent Volumes]( https://kubernetes.io/docs/concepts/storage/persistent-volumes/).
 
-    - `storageClass`: the storage class used by Kubernetes when requesting storage for the mongo database, eg: `standard`
+    - `storageClass`: the storage class used by Kubernetes when requesting storage for the mongo database, eg: `standard`. Use the custom class `influenzanet-storage` if you want to set up `Retainable` volumes.
 
     - `accessModes`: array of access modes for the requested storage, eg:
         - `- ReadWriteOnce`
@@ -141,9 +143,26 @@ Once the repository has been checked out into the server and your configuration 
 
 1. Run the deployment script `install_start.sh` for the first time you set up the system.
 
-2. To stop and clean up the Influenzanet services from the cluster run `stop.sh`
+2. To stop and clean-up the Influenzanet services from the cluster run `stop.sh`
 
 3. To reinstall the Influenzanet services platform after a clean-up, only run `start.sh` (prevents unnecessary re-installation of nginx ingress & certificate manager)
+
+### Additional charts
+
+Additional `helm` charts are available for several plug-in functionalities:
+
+- [influenzanet-backups](./influenzanet-backups): chart for enabling scheduled `mongo` backups
+- [influenzanet-restore](./influenzanet-restore): chart for restoring `mongo` backups
+- [influenzanet-mailgun](./influenzanet-mailgun): chart for setting up mailgun [webhooks](https://www.mailgun.com/guides/your-guide-to-webhooks/)
+- [influenzanet-maintenance](./influenzanet-maintenance): chart for enabling maintenance mode on the deployed Influenzanet platform
+
+Each of the above charts depends on the base `influenzanet` chart and depends on the `values.yaml` contained therein, eg:
+
+``` bash
+helm install influenzanet-backups influenzanet-backups/ -f influenzanet/values.yaml
+```
+
+For further details see the `README.md` included in a specific subchart.
 
 ### Troubleshooting
 
