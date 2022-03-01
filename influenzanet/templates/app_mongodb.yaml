@@ -1,0 +1,63 @@
+{{- with .Values.svcMongoDb }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ .name }}
+spec:
+  replicas: 1
+  selector:
+      matchLabels:
+        app: {{ .name }}
+  template:
+      metadata:
+        labels:
+            app: {{ .name }}
+      spec:
+        volumes:
+          - name: database-pv
+            persistentVolumeClaim:
+              claimName: {{ .pvClaimName }}
+        containers:
+          - name: {{ .name }}
+            image: {{ .image }}
+            env:
+              - name: MONGO_INITDB_ROOT_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .dbSecretName }}
+                    key: username
+              - name: MONGO_INITDB_ROOT_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: {{ .dbSecretName }}
+                    key: password
+            ports:
+              - containerPort: {{ .containerPort }}
+            volumeMounts:
+              - mountPath: "/data/db"
+                name: database-pv
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .serviceName }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  selector:
+    app: mongo
+{{ if .headless }}
+  clusterIP: None
+{{ else }}
+  type: ClusterIP
+{{ end }}
+  ports:
+      - 
+        name: grpc
+        protocol: TCP
+        port: {{ .containerPort }}
+        targetPort: {{ .containerPort }}
+{{- end }}

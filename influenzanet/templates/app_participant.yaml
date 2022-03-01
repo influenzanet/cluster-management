@@ -1,0 +1,40 @@
+{{- with .Values.svcWebParticipant }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ .name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .name }}
+    spec:
+      containers:
+        - name: {{ .name }}
+          image: {{ .image }}
+          imagePullPolicy: {{ .imagePullPolicy }}
+          ports:
+            - containerPort: {{ .containerPort }} 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .serviceName }}
+  namespace: {{ $.Values.namespace }}
+spec:
+    type: NodePort
+    selector:
+      app: web-client
+    ports:
+      - port: {{ .containerPort }}
+        targetPort: 80
+{{- end }}
+      

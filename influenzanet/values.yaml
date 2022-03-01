@@ -4,8 +4,24 @@
 
 namespace: case
 
+####
+# Global flags
+####
+
+# Common prefix for database names (use for multitenant db)
+dbNamePrefix: ''
+
+# Use Google Recaptcha, if true the secret googleRecaptchaKey should be defined too
+useRecaptcha: true
+
 # Replace this with the domain name for Influenzanet Application
 domain: example.com
+
+ingress:
+  ApiVersion: v1
+  # Use a simplified Ingress configuration (with wildcard path instead of specific)
+  simplified: true
+
 # Replace this with a list of domains to be included in the certificate
 tlsDomains:
   - example.com
@@ -13,21 +29,36 @@ tlsDomains:
 participantApiPath: "/api"
 managementApiPath: "/admin"
 
-simplifiedIngress: false
 
 # TLS Certificate Issuer Section
+# issuerType 'acme', 'ca' 
+issuerType: acme
+
+# Cluster issuer Name
 clusterIssuer : "letsencrypt-prod-site"
 acmeServer: https://acme-v02.api.letsencrypt.org/directory
 connectedEmail: sajeeth.sadananda@isi.it
 
+# Name of the secret used to store the generated certificat will be stored
+tlsSecretName: 'site-tls-web'
+
+# In case of issuerType 'ca' put here the name of the secret containing the ca certificate and key, leave empty for acme
+CAIssuerSecretName: 'ca-issuer-secret'
+
 # Secrets Configuration Section
+
+# JSON Web Token secret key (32 bytes random, base64 enconded)
 jwtKey: ""
 mongoUsername: "admin"
 mongoPassword: "abc123"
 mongoConnectionPrefix: ""
-googleRecaptchaKey: "<insert-base64-key-here>"
+googleRecaptchaKey: ""
+studyGlobalSecret: ""
 
 # Persistant Storage Section
+# Create a dedicated storage class (can be removed if your cluster already provides it)
+createStorageClass: true
+# Storage class name to use for the MongoDb 
 storageClass: influenzanet-storage
 accessModes:
   - ReadWriteOnce
@@ -67,670 +98,140 @@ prioSmtpServers: |
 # Deployment and Service configurations for each micro-service.
 ## Add to this list to deploy additional micro-services
 
-microservices:
-  ######################
-  # PARTICIPANT WEBAPP #
-  ######################
-  participantWebapp:
-    deployment:
-      name: web-client
-      spec:
-        replicas: 1
-        selector:
-          matchLabels:
-            app: web-client
-        template:
-          metadata:
-            labels:
-              app: web-client
-          spec:
-            containers:
-            - name: web-client
-              image: sajeeth1009/participant-webapp:v0.0.1
-              imagePullPolicy: Always
-              ports:
-              - containerPort: 3100
-    service:
-      name: web-client-service
-      spec:
-        type: NodePort
-        selector:
-          app: web-client
-        ports:
-        - port: 3100
-          targetPort: 80
-  ################
-  # EMAIL CLIENT #
-  ################
-  email-client:
-    deployment:
-      name: email-client
-      spec:
-        replicas: 1
-        selector:
-          matchLabels:
-            app: email-client
-        template:
-          metadata:
-            labels:
-              app: email-client
-          spec:
-            containers:
-            - name: email-client
-              image: sajeeth1009/email-client-service-image:v0.9.1
-              imagePullPolicy: Always
-              env:
-              - name: EMAIL_CLIENT_SERVICE_LISTEN_PORT
-                value: "5005"
-              - name: MESSAGING_CONFIG_FOLDER
-                value: "/config"
-              volumeMounts:
-              - name: config-volume
-                mountPath: /config/
-              ports:
-              - containerPort: 5005
-                protocol: TCP
-              - containerPort: 465
-                name: smtpssl
-                protocol: TCP
-              - containerPort: 587
-                name: smtpauth
-                protocol: TCP
-            volumes:
-            - name: config-volume
-              configMap:
-                name: email-server-config
-    service:
-      name: email-client-service
-      spec:
-        type: NodePort
-        selector:
-          app: email-client
-        ports:
-        - name: grpc
-          port: 5005
-          protocol: TCP
-          targetPort: 5005
-        - name: smtpssl-svc
-          port: 465
-          protocol: TCP
-          targetPort: 465
-        - name: smtpauth-svc
-          port: 587
-          protocol: TCP
-          targetPort: 587
-  ###################
-  # LOGGING SERVICE #
-  ###################
-  logging:
-    deployment:
-      name: logging
-      spec:
-        replicas: 1
-        selector:
-          matchLabels:
-            app: logging
-        template:
-          metadata:
-            labels:
-              app: logging
-          spec:
-            containers:
-            - name: logging
-              image: sajeeth1009/logging-service-image:v0.1.0
-              imagePullPolicy: Always
-              env:
-              - name: LOGGING_SERVICE_LISTEN_PORT
-                value: "5006"
-              - name: DB_TIMEOUT
-                value: "30"
-              - name: DB_IDLE_CONN_TIMEOUT
-                value: "46"
-              - name: DB_MAX_POOL_SIZE
-                value: "8"
-              - name: DB_DB_NAME_PREFIX
-                value: ""
-              - name: LOG_DB_CONNECTION_STR
-                value: mongo-atlas-service:27017
-              - name: LOG_DB_CONNECTION_PREFIX
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: connectionPrefix
-              - name: LOG_DB_USERNAME
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: username
-              - name: LOG_DB_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: password
-              ports:
-              - containerPort: 5006
-    service:
-      name: logging-service
-      spec:
-        type: ClusterIP
-        selector:
-          app: logging
-        ports:
-        - name: grpc
-          protocol: TCP
-          port: 5006
-          targetPort: 5006
-  ###################
-  #  MANAGEMENT API #
-  ###################
-  managementAPI:
-    deployment:
-      name: management-api
-      spec:
-        replicas: 1
-        selector:
-          matchLabels:
-            app: management-api
-        template:
-          metadata:
-            labels:
-              app: management-api
-          spec:
-            containers:
-            - name: management-api
-              image: sajeeth1009/management-api-image:v0.12.1
-              imagePullPolicy: Always
-              env:
-              - name: MANAGEMENT_API_GATEWAY_LISTEN_PORT
-                value: "3232"
-              - name: CORS_ALLOW_ORIGINS
-                value: "https://tofudumplings.com,http://tofudumplings.com"
-              - name: DEBUG_MODE
-                value: "false"
-              - name: ADDR_USER_MANAGEMENT_SERVICE
-                value: user-management-service:5002
-              - name: ADDR_STUDY_SERVICE
-                value: study-service:5003
-              - name: ADDR_MESSAGING_SERVICE
-                value: messaging-service:5004
-              ports:
-              - containerPort: 3232
-    service:
-      name: management-api-service
-      spec:
-        type: NodePort
-        selector:
-          app: management-api
-        ports:
-        - name: grpc
-          protocol: TCP
-          port: 3232
-          targetPort: 3232
-  ###################
-  # PARTICIPANT API #
-  ###################
-  participantAPI:
-    deployment:
-      name: participant-api
-      spec:
-        replicas: 1
-        selector:
-          matchLabels:
-            app: participant-api
-        template:
-          metadata:
-            labels:
-              app: participant-api
-          spec:
-            containers:
-            - name: participant-api
-              image: sajeeth1009/participant-api-image:v0.12.1
-              imagePullPolicy: Always
-              env:
-              - name: USE_DELETE_PARTICIPANT_DATA_ENDPOINT
-                value: 'true'
-              - name: GATEWAY_LISTEN_PORT
-                value: "3231"
-              - name: CORS_ALLOW_ORIGINS
-                value: "https://tofudumplings.com,http://tofudumplings.com"
-              - name: DEBUG_MODE
-                value: "false"
-              - name: ADDR_USER_MANAGEMENT_SERVICE
-                value: user-management-service:5002
-              - name: ADDR_STUDY_SERVICE
-                value: study-service:5003
-              - name: ADDR_MESSAGING_SERVICE
-                value: messaging-service:5004
-              - name: DISABLE_SIGNUP_WITH_EMAIL_ENDPOINT
-                value: "false"
-              - name: USE_RECAPTCHA
-                value: "true"
-              - name: RECAPTCHA_SECRET
-                valueFrom:
-                  secretKeyRef:
-                    name: recaptcha-collection
-                    key: recaptchaKey
-              ports:
-              - containerPort: 3231
-    service:
-      name: participant-api-service
-      spec:
-        type: NodePort
-        selector:
-          app: participant-api
-        ports:
-        - name: grpc
-          protocol: TCP
-          port: 3231
-          targetPort: 3231
-  #######################
-  # MESSAGING SCHEDULER #
-  #######################
-  messagingScheduler:
-    deployment:
-      name: message-scheduler
-      spec:
-        replicas: 1
-        selector:
-          matchLabels:
-            app: message-scheduler
-        template:
-          metadata:
-            labels:
-              app: message-scheduler
-          spec:
-            containers:
-            - name: message-scheduler
-              image: sajeeth1009/message-scheduler-image:v0.9.1
-              imagePullPolicy: Always
-              env:
-              - name: GLOBAL_DB_CONNECTION_STR
-                value: mongo-atlas-service:27017
-              - name: GLOBAL_DB_CONNECTION_PREFIX
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: connectionPrefix
-              - name: GLOBAL_DB_USERNAME
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: username
-              - name: GLOBAL_DB_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: password
-              - name: MESSAGE_DB_CONNECTION_STR
-                value: mongo-atlas-service:27017
-              - name: MESSAGE_DB_CONNECTION_PREFIX
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: connectionPrefix
-              - name: MESSAGE_DB_USERNAME
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: username
-              - name: MESSAGE_DB_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: password
-              - name: DB_TIMEOUT
-                value: "30"
-              - name: DB_IDLE_CONN_TIMEOUT
-                value: "46"
-              - name: DB_MAX_POOL_SIZE
-                value: "8"
-              - name: DB_DB_NAME_PREFIX
-                value: ""
-              - name: MESSAGE_SCHEDULER_INTERVAL_HIGH_PRIO
-                value: "45"
-              - name: MESSAGE_SCHEDULER_INTERVAL_LOW_PRIO
-                value: "1800"
-              - name: MESSAGE_SCHEDULER_INTERVAL_AUTO_MESSAGE
-                value: "120"
-              - name: ADDR_USER_MANAGEMENT_SERVICE
-                value: user-management-service:5002
-              - name: ADDR_STUDY_SERVICE
-                value: study-service:5003
-              - name: ADDR_EMAIL_CLIENT_SERVICE
-                value: email-client-service:5005
-    service:
-      name: messaging-scheduler-service
-      spec:
-        type: ClusterIP
-        selector:
-          app: message-scheduler
-        ports:
-        - name: grpc
-          protocol: TCP
-          port: 5009
-          targetPort: 5009
-  #####################
-  # MESSAGING SERVICE #
-  #####################
-  messagingService:
-    deployment:
-      name: messaging
-      spec:
-        replicas: 1
-        selector:
-          matchLabels:
-            app: messaging
-        template:
-          metadata:
-            labels:
-              app: messaging
-          spec:
-            containers:
-            - name: messaging
-              image: sajeeth1009/messaging-service-image:v0.9.1
-              imagePullPolicy: Always
-              env:
-              - name: MESSAGING_SERVICE_LISTEN_PORT
-                value: "5004"
-              - name: GLOBAL_DB_CONNECTION_STR
-                value: mongo-atlas-service:27017
-              - name: GLOBAL_DB_CONNECTION_PREFIX
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: connectionPrefix
-              - name: GLOBAL_DB_USERNAME
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: username
-              - name: GLOBAL_DB_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: password
-              - name: MESSAGE_DB_CONNECTION_STR
-                value: mongo-atlas-service:27017
-              - name: MESSAGE_DB_CONNECTION_PREFIX
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: connectionPrefix
-              - name: MESSAGE_DB_USERNAME
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: username
-              - name: MESSAGE_DB_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: password
-              - name: DB_TIMEOUT
-                value: "30"
-              - name: DB_IDLE_CONN_TIMEOUT
-                value: "46"
-              - name: DB_MAX_POOL_SIZE
-                value: "8"
-              - name: DB_DB_NAME_PREFIX
-                value: ""
-              - name: ADDR_USER_MANAGEMENT_SERVICE
-                value: user-management-service:5002
-              - name: ADDR_STUDY_SERVICE
-                value: study-service:5003
-              - name: ADDR_EMAIL_CLIENT_SERVICE
-                value: email-client-service:5005
-              - name: ADDR_LOGGING_SERVICE
-                value: logging-service:5006
-              ports:
-              - containerPort: 5004
-    service:
-      name: messaging-service
-      spec:
-        type: ClusterIP
-        selector:
-          app: messaging
-        ports:
-        - name: grpc
-          protocol: TCP
-          port: 5004
-          targetPort: 5004
-  ############
-  # MONGO DB #
-  ############
-  mongoDB:
-    deployment:
-      name: mongo
-      spec:
-        replicas: 1
-        selector:
-          matchLabels:
-            app: mongo
-        template:
-          metadata:
-            labels:
-              app: mongo
-          spec:
-            volumes:
-            - name: database-pv
-              persistentVolumeClaim:
-                claimName: database-pv-claim
-            containers:
-            - name: mongo
-              image: mongo:latest
-              env:
-              - name: MONGO_INITDB_ROOT_USERNAME
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: username
-              - name: MONGO_INITDB_ROOT_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: password
-              ports:
-              - containerPort: 27017
-              volumeMounts:
-              - mountPath: "/data/db"
-                name: database-pv
-    service:
-      name: mongo-atlas-service
-      spec:
-        selector:
-          app: mongo
-        clusterIP: None
-        ports:
-        - name: grpc
-          protocol: TCP
-          port: 27017
-          targetPort: 27017
-  #################
-  # STUDY SERVICE #
-  #################
-  studyService:
-    deployment:
-      name: study
-      spec:
-        replicas: 1
-        selector:
-          matchLabels:
-            app: study
-        template:
-          metadata:
-            labels:
-              app: study
-          spec:
-            containers:
-            - name: study
-              image: sajeeth1009/study-service-image:v0.13.4
-              env:
-              - name: STUDY_SERVICE_LISTEN_PORT
-                value: "5003"
-              - name: DB_TIMEOUT
-                value: "30"
-              - name: DB_IDLE_CONN_TIMEOUT
-                value: "46"
-              - name: DB_MAX_POOL_SIZE
-                value: "8"
-              - name: DB_DB_NAME_PREFIX
-                value: ""
-              - name: GLOBAL_DB_CONNECTION_STR
-                value: mongo-atlas-service:27017
-              - name: GLOBAL_DB_CONNECTION_PREFIX
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: connectionPrefix
-              - name: GLOBAL_DB_USERNAME
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: username
-              - name: GLOBAL_DB_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: password
-              - name: STUDY_DB_CONNECTION_STR
-                value: mongo-atlas-service:27017
-              - name: STUDY_DB_CONNECTION_PREFIX
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: connectionPrefix
-              - name: STUDY_DB_USERNAME
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: username
-              - name: STUDY_DB_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: password
-              - name: STUDY_TIMER_EVENT_FREQUENCY
-                value: "86400"
-              - name: STUDY_TIMER_EVENT_CHECK_INTERVAL_MIN
-                value: "3600"
-              - name: STUDY_TIMER_EVENT_CHECK_INTERVAL_VAR
-                value: "900"
-              - name: STUDY_GLOBAL_SECRET
-                value: ""
-              - name: ADDR_LOGGING_SERVICE
-                value: logging-service:5006
-              ports:
-              - containerPort: 5003
-    service:
-      name: study-service
-      spec:
-        type: ClusterIP
-        selector:
-          app: study
-        ports:
-        - name: grpc
-          protocol: TCP
-          port: 5003
-          targetPort: 5003
-  ###########################
-  # USER MANAGEMENT SERVICE #
-  ###########################
-  userManagement:
-    deployment:
-      name: user-management
-      spec:
-        replicas: 1
-        selector:
-          matchLabels:
-            app: user-management
-        template:
-          metadata:
-            labels:
-              app: user-management
-          spec:
-            containers:
-            - name: user-management
-              image: sajeeth1009/user-management-image:v0.19.2
-              env:
-              - name: USER_MANAGEMENT_LISTEN_PORT
-                value: "5002"
-              - name: DB_TIMEOUT
-                value: "30"
-              - name: DB_IDLE_CONN_TIMEOUT
-                value: "46"
-              - name: DB_MAX_POOL_SIZE
-                value: "8"
-              - name: DB_DB_NAME_PREFIX
-                value: ""
-              - name: GLOBAL_DB_CONNECTION_STR
-                value: mongo-atlas-service:27017
-              - name: GLOBAL_DB_CONNECTION_PREFIX
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: connectionPrefix
-              - name: GLOBAL_DB_USERNAME
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: username
-              - name: GLOBAL_DB_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: password
-              - name: USER_DB_CONNECTION_STR
-                value: mongo-atlas-service:27017
-              - name: USER_DB_CONNECTION_PREFIX
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: connectionPrefix
-              - name: USER_DB_USERNAME
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: username
-              - name: USER_DB_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: case-mongodb-atlas
-                    key: password
-              - name: TOKEN_EXPIRATION_MIN
-                value: "5"
-              - name: TOKEN_MINIMUM_AGE_MIN
-                value: "2"
-              - name: JWT_TOKEN_KEY
-                valueFrom:
-                  secretKeyRef:
-                    name: jwt-collection
-                    key: jwt-key
-              - name: ARGON2_MEMORY
-                value: "65536"
-              - name: ARGON2_ITERATIONS
-                value: "4"
-              - name: ARGON2_PARALLELISM
-                value: "2"
-              - name: ADDR_MESSAGING_SERVICE
-                value: messaging-service:5004
-              - name: ADDR_LOGGING_SERVICE
-                value: logging-service:5006
-              - name: NEW_USER_RATE_LIMIT
-                value: "100"
-              - name: CLEAN_UP_UNVERIFIED_USERS_AFTER
-                value: "129000"
-              - name: VERIFICATION_CODE_LIFETIME
-                value: "900"
-              ports:
-              - containerPort: 5002
-    service:
-      name: user-management-service
-      spec:
-        type: ClusterIP
-        selector:
-          app: user-management
-        ports:
-        - name: grpc
-          protocol: TCP
-          port: 5002
-          targetPort: 5002
+globalDb:
+  dbConnexionStr: mongo-atlas-service:27017
+  dbSecretName: case-mongodb-atlas
+
+messageDB:
+  dbConnexionStr: mongo-atlas-service:27017
+  dbSecretName: case-mongodb-atlas
+
+studyDB:
+  dbConnexionStr: mongo-atlas-service:27017
+  dbSecretName: case-mongodb-atlas
+
+userDB:
+  dbConnexionStr: mongo-atlas-service:27017
+  dbSecretName: case-mongodb-atlas
+
+# PARTICIPANT WEBAPP
+svcWebParticipant:
+    name: web-client
+    replicas: 1
+    image: sajeeth1009/participant-webapp:v0.0.1
+    imagePullPolicy: Always
+    containerPort: 3100
+    serviceName: web-client-service
+
+# EMAIL CLIENT #
+svcEmailClient:
+  name: email-client
+  image: sajeeth1009/email-client-service-image:v0.9.1
+  imagePullPolicy: Always
+  replicas: 1
+  containerPort: 5005
+  serviceName: email-client-service
+  configMapName: email-server-config
+  
+# LOGGING SERVICE #
+svcLogging:
+  name: logging
+  replicas: 1
+  image: sajeeth1009/logging-service-image:v0.1.0
+  containerPort: 5006
+  serviceName: logging-service
+  dbSecretName: case-mongodb-atlas
+  dbConnexionStr: mongo-atlas-service:27017
+
+#  MANAGEMENT API #
+svcManagementApi:
+  name: management-api
+  image: sajeeth1009/management-api-image:v0.12.1
+  containerPort: 3232      
+  corsAllowOrigins: 'https://tofudumplings.com,http://tofudumplings.com'
+  debugMode: "false"
+  serviceName: management-api-service
+
+svcParticipantApi:
+  name: participant-api
+  image: sajeeth1009/participant-api-image:v0.12.1
+  containerPort: 3231
+  corsAllowOrigins: 'https://tofudumplings.com,http://tofudumplings.com'
+  debugMode: "false"
+  useDeleteEndpoint: true
+  disableSignupEndpoint: false
+  recaptchaSecretName: recaptcha-collection
+  serviceName: participant-api-service
+  
+SvcMessageScheduler:
+  name: messaging-scheduler
+  replicas: 1
+  image: 
+  containerPort: 5009
+  serviceName: messaging-scheduler-service
+  dbTimeout: 30
+  dbIdleTimeout: 46
+  # Batch Sending Interval for High Priority (seconds)
+  intervalHighPrio: 45
+  # Batch Sending interval for Low priority messages (seconds)
+  intervalLowPrio: 1800
+  # Batch Sending interval for Auto messages (seconds)
+  intervalAutoMessage: 120
+
+
+# MESSAGING SERVICE #  
+svcMessaging:
+  name: messaging
+  replicas: 1
+  image: sajeeth1009/messaging-service-image:v0.9.1
+  containerPort: 5004
+  serviceName: messaging-service
+  dbTimeout: 30
+  dbIdleTimeout: 46
+
+svcMongoDb:
+  name: mongo
+  serviceName: mongo-atlas-service
+  replicas: 1
+  pvClaimName: database-pv-claim
+  image: mongo:latest
+  # Secret used to create the ROOT password, should have 'username' & password entry
+  dbSecretName: case-mongodb-atlas
+  containerPort: 27017
+  headless: true
+  
+svcStudyService:
+  name: study
+  image: sajeeth1009/study-service-image:v0.13.4
+  replicas: 1
+  serviceName: study-service
+  containerPort: 5003
+  dbTimeout: 30
+  dbIdleTimeout: 46
+  timerEventFrequency: 86400
+  timerEventCheckIntervalMin: 3600
+  timerEventCheckIntervalVar: 900
+  globalSecretName: study-global-secret
+
+# USER MANAGEMENT SERVICE #
+svcUserManagement:
+  name: user-management
+  image: sajeeth1009/user-management-image:v0.19.2
+  replicas: 1
+  serviceName: "user-management-service"
+  containerPort: 5002
+  dbTimeout: 30
+  dbIdleTimeout: 46
+  
+  # JWT Tokens
+  # Token expiration time in Minute
+  tokenExpiration: 5
+  
+  # Name of the secret containing the jwt secret key
+  jwtSecretName: jwt-collection
+  # Maximum number of new created accounts, during the signupRateLimitWindow (5 minutes)
+  newUserRateLimit: 100
+  # Delay (seconds) after which to cleanup user account when it has not been verified
+  cleanupUnverifiedUsersAfter: 129000
+  # Lifetime in seconds for verification code of a new account. Default is 15 minutes
+  verificationCodeLifetime: 900
