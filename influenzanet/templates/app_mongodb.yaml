@@ -1,3 +1,4 @@
+{{ if .Values.svcMongoDb.enabled }}
 {{- with .Values.svcMongoDb }}
 ---
 apiVersion: apps/v1
@@ -61,3 +62,4 @@ spec:
         port: {{ .containerPort }}
         targetPort: {{ .containerPort }}
 {{- end }}
+{{ end }}

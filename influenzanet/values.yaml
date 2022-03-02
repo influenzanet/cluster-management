@@ -58,11 +58,6 @@ studyGlobalSecret: ""
 # Persistant Storage Section
 # Create a dedicated storage class (can be removed if your cluster already provides it)
 createStorageClass: true
-# Storage class name to use for the MongoDb 
-storageClass: influenzanet-storage
-accessModes:
-  - ReadWriteOnce
-storageRequested: 50Gi
 
 # Email service SMTP configuration
 ## Regular Email Server
@@ -178,7 +173,6 @@ SvcMessageScheduler:
   # Batch Sending interval for Auto messages (seconds)
   intervalAutoMessage: 120
 
-
 # MESSAGING SERVICE #  
 svcMessaging:
   name: messaging
@@ -190,16 +184,25 @@ svcMessaging:
   dbIdleTimeout: 46
 
 svcMongoDb:
+  enabled: true
   name: mongo
   serviceName: mongo-atlas-service
   replicas: 1
-  pvClaimName: database-pv-claim
   image: mongo:latest
   # Secret used to create the ROOT password, should have 'username' & password entry
   dbSecretName: case-mongodb-atlas
   containerPort: 27017
+  # If false the service will be assigned to NodePort instead of clusterIp
   headless: true
-  
+  # Name of the pv to create
+  pvClaimName: database-pv-claim
+  # Storage class name to use for the MongoDb 
+  storageClass: influenzanet-storage
+  accessModes:
+    - ReadWriteOnce
+  # Size of the requested storage
+  storageRequested: 50Gi
+
 svcStudyService:
   name: study
   image: sajeeth1009/study-service-image:v0.13.4
