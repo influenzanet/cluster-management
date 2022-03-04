@@ -27,7 +27,14 @@ This guide will walk you through creating a Kubernetes deployment for the Influe
 
 ### Set up
 
-Before proceeding, configure the `influenzanet/values.yaml` file to reflect the details of your deployment. In the `values.yaml` file you will find the following configuration values:
+Before proceeding, configure the `influenzanet/values.yaml` file to reflect the defaults values for all possible parameters of your deployment. 
+
+It's also possible to create an empty yaml file to be used to override the values in the influenzanet/values.yamlm (it's avised to store this file in a secure location since it will contains some sensitive values)
+
+When installing/updating the helm chart you can pass the option -f with the path of your yaml file, it will be used to override the values. You can pass several times this option with different to cascade the overrides. This can be useful if you use several settings with common parameters, for example production and dev environment.
+A last file can contains only the secrets and some others the non sensitive override allowing to store them in a vcs
+
+In the `values.yaml` file you will find the following configuration values:
 
 1. namespace, domain and back-end path configurations
 
@@ -36,17 +43,35 @@ Before proceeding, configure the `influenzanet/values.yaml` file to reflect the 
     - `tlsDomains`: array of additional domain names redirected to the base domain, eg: `[influweb.org, influweb.it]`
     - `participantApiPath`: the path under which the participant API are served, eg: `/api`
     - `managementApiPath`: the path under which the management API are served, eg: `/admin`
-    - `simplifiedIngress`: set this to `true` if your `web-client` image is configured for using `try_files`
+    - `useRecaptcha`: use Recaptcha for signup if 'true', skip if 'false'
+    - `dbNamePrefix`: Prefix to use for instance database (to enable multi tenant database)
 
-2. TLS certificate configurations
+Under the ingress entry
 
-    - `acmeServer`:  URL for the ACME server issuing TLS certificates, eg: `https://acme-v02.api.letsencrypt.org/directory`
+```yaml
+ingress:
+  simplified: true # Use simplified ingress version
 
-    - `clusterIssuer`: name assigned to the ACME server, eg: `letsencrypt`
+```
 
-    - `connectedEmail`: email associated to the ACME server, will receive maintenance communication from the acme server.
+1. TLS certificate configurations
 
-3. Secrets: JWT, Mongo credentials, recaptcha key
+Using ACME Letsencrypt service
+
+ - `acmeServer`:  URL for the ACME server issuing TLS certificates, eg: `https://acme-v02.api.letsencrypt.org/directory`
+
+ - `clusterIssuer`: name assigned to the ACME server, eg: `letsencrypt`
+
+ - `acmeEmail`: email associated to the ACME server, will receive maintenance communication from the acme server.
+
+Other modes
+
+`issuerType` can be used to switch to another certificate issuer type
+  - 'ca' value will use a local CA. The value `CAIssuerSecretName` should contains the name of the secret containing the CA private key and certificate 
+    You have to create it manually before to use it in the cluster (this intented to be only for dev mode)
+  - 'none' wont create certificate issuer
+
+1. Secrets: JWT, Mongo credentials, recaptcha key
 
     - `jwtKey`: base64 encoded key used for generating user authentication tokens, see [Generating a JWT key ](#generating-a-jwt-key ) for instructions on how to generate a key
 
@@ -54,20 +79,27 @@ Before proceeding, configure the `influenzanet/values.yaml` file to reflect the 
 
     - `mongoPassword`: password associated to the mongo admin account
 
-    - `googleRecaptchaKey`: secret key associated to a Google recaptcha account, see [Generating a recaptcha key](#generating-a-recaptcha-key) for instructions on how to obtain a key
+    - `googleRecaptchaKey`: base64 encoded secret key associated to a Google recaptcha account, see [Generating a recaptcha key](#generating-a-recaptcha-key) for instructions on how to obtain a key
 
-4. Persistent volume configurations (for mongo)
+    - `studyGlobalSecret` : base64 encoded value of global secret for study service 
+
+2. Persistent volume configurations (for mongoDB service)
 
     Detailed information on these configuration values can be found in Kubernetes' documentation on [Persistent Volumes]( https://kubernetes.io/docs/concepts/storage/persistent-volumes/).
 
-    - `storageClass`: the storage class used by Kubernetes when requesting storage for the mongo database, eg: `standard`. Use the custom class `influenzanet-storage` if you want to set up `Retainable` volumes.
+    - `createStorageClass` : if you use already existing storageClass (provided by a cloud provider, set this value to false)
 
-    - `accessModes`: array of access modes for the requested storage, eg:
-        - `- ReadWriteOnce`
+  Under the entry svcMongoDb (values are the default values given as example. Omit an entry to use the default)
 
-    - `storageRequested`: size allocated for the storage, eg: `50Gi`
+  ```yaml
+  svcMongoDb:
+    storageClass: influenzanet-storage # the storage class used by Kubernetes when requesting storage for the mongo database
+    accessModes: # Access mode for the storage 
+      - ReadWriteOnce  # By default the storage can only be accessed by one pod at time
+    storageRequested: `50Gi` # size allocated for the storage, 
+  ```
 
-6. SMTP configurations for Email sending
+5. SMTP configurations for Email sending
 
     Specify default (`smtpServers`) and high priority (`smtpServers`) SMTP servers, for both entries you must specify:
 
@@ -79,22 +111,47 @@ Before proceeding, configure the `influenzanet/values.yaml` file to reflect the 
         - `port`: SMTP port
         - `auth`: contains the username and password credentials for the mailing service.
 
-7. Microservice specific sections, containing configurations of the Kubernetes [deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) and [service](https://kubernetes.io/docs/concepts/services-networking/service/) for each of the microservices. This includes docker image paths for each microservice, environment variables, port configurations and persistent volume attachments if needed. The most important value you need to change for each microservice is the location of the Dockerhub image:
+6. Microservice specific sections, containing configurations of the Kubernetes [deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) and [service](https://kubernetes.io/docs/concepts/services-networking/service/) for each of the microservices. This includes docker image paths for each microservice, environment variables, port configurations and persistent volume attachments if needed. The most important value you need to change for each microservice is the location of the Dockerhub image:
 
-    ```yaml
-    participantWebapp:
-      deployment:
-        [...]
-        spec:
-          [...]
-          template:
-            spec:
-              containers:
-              - name: [container_name]
-                image: [dockerhub_image]
-              [...]
-    ```
+Each microservice has its own entry in the values file and can be overriden:
 
+- svcEmailClient
+- svcLogging
+- svcManagementApi
+- svcParticipantApi
+- svcUserManagement
+- svcMessaging
+- svcStudyService
+- SvcMessageScheduler
+
+Each provides a set of parameters to configure the service under the service name entry
+
+Most common parameters are:
+ - image: name of the image to use
+ - replicas: number of replicas to use
+ - 
+
+For example to override the image and replicas uses 
+```yaml
+
+svcWebParticipant:
+  image: myrepo/webparticipant-image:v1.2 # <docker image ref>
+  replicas: 2 # Number of replicas to use for the service
+```
+
+For some services you will need to override value for your deployment
+
+```yaml
+svcManagementApi:
+ corsAllowOrigins: "http://youdomain.com,https://yourdomain.com" # Domains allowed to use the api (client side security)
+
+svcParticipantApi:
+  corsAllowOrigins: "http://youdomain.com,https://yourdomain.com" # idem 
+
+
+```
+
+For the others parameters, see in values.yml for each service
 #### Generating a JWT key
 
 The script used to generate a JWT key is hosted in the [user-management-service](https://github.com/influenzanet/user-management-service) repository. To generate a key cd into the directory `tools/key-generator` and run:
@@ -184,7 +241,7 @@ For further details see the `README.md` included in a specific subchart.
   kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
   ```
 
-4. Lets encrypt (which is used for certificate creation) has a duplicate certificate creation limit of 5 per week.  Check logs of the created certificate by runnning
+4. Lets encrypt (which is used for certificate creation) has a duplicate certificate creation limit of 5 per week.  Check logs of the created certificate by running
 
   ```
   kubectl describe certificate <cert-name> -n [influenzanet_namespace]
