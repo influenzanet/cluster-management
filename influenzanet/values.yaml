@@ -29,7 +29,6 @@ tlsDomains:
 participantApiPath: "/api"
 managementApiPath: "/admin"
 
-
 # TLS Certificate Issuer Section
 # issuerType 'acme', 'ca' 
 issuerType: acme
@@ -37,7 +36,7 @@ issuerType: acme
 # Cluster issuer Name
 clusterIssuer : "letsencrypt-prod-site"
 acmeServer: https://acme-v02.api.letsencrypt.org/directory
-connectedEmail: sajeeth.sadananda@isi.it
+acmeEmail: sajeeth.sadananda@isi.it
 
 # Name of the secret used to store the generated certificat will be stored
 tlsSecretName: 'site-tls-web'
@@ -52,7 +51,11 @@ jwtKey: ""
 mongoUsername: "admin"
 mongoPassword: "abc123"
 mongoConnectionPrefix: ""
+
+# Base64 encoded googleRecaptcha secret key
 googleRecaptchaKey: ""
+
+# Base64 encoded studyGlobalSecret
 studyGlobalSecret: ""
 
 # Persistant Storage Section
@@ -89,9 +92,6 @@ prioSmtpServers: |
       auth:
         user: username@email.com
         password: "password" 
-
-# Deployment and Service configurations for each micro-service.
-## Add to this list to deploy additional micro-services
 
 globalDb:
   dbConnexionStr: mongo-atlas-service:27017
@@ -202,6 +202,11 @@ svcMongoDb:
     - ReadWriteOnce
   # Size of the requested storage
   storageRequested: 50Gi
+  # Path to mount in the container to the data directory (can depends on the image used)
+  # For bitnami use /bitnami/mongodb
+  dbDataPath: /data/db
+  envRootUserName: MONGO_INITDB_ROOT_USERNAME
+  envRootPasswordName: MONGO_INITDB_ROOT_PASSWORD
 
 svcStudyService:
   name: study
