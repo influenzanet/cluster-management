@@ -10,7 +10,7 @@ kubectl wait --namespace default \
   --timeout=120s
 
 # Install the certificate manager
-kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.yaml
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.7.1/cert-manager.yaml
 
 kubectl wait --namespace cert-manager \
   --for=condition=ready pod \
