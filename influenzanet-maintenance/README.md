@@ -11,7 +11,7 @@ all traffic to the Influenzanet platform will be redirected to a custom `503` pa
 To disable maintenance mode just uninstall this chart:
 
 ``` bash
-helm uninstall influenzanet-mailgun
+helm uninstall influenzanet-maintenance
 ```
 
 ## Configurable values
