@@ -29,7 +29,7 @@ This guide will walk you through creating a Kubernetes deployment for the Influe
 
 Before proceeding, configure the `influenzanet/values.yaml` file to reflect the defaults values for all possible parameters of your deployment. 
 
-It's also possible to create an empty yaml file to be used to override the values in the influenzanet/values.yamlm (it's avised to store this file in a secure location since it will contains some sensitive values)
+It's also possible to create an empty yaml file to be used to override the values in the influenzanet/values.yaml (it's advised to store this file in a secure location since it will contains some sensitive values or to separate the sensitive values in an other overriding file). You can use several yaml in cascade (using the -f option several times). For example one for the common config for the instance and one or several for the deployment environment and one another for the secrets (this last can be stored in a secure location and the previous ones tracked with a VCS like git).
 
 When installing/updating the helm chart you can pass the option -f with the path of your yaml file, it will be used to override the values. You can pass several times this option with different to cascade the overrides. This can be useful if you use several settings with common parameters, for example production and dev environment.
 A last file can contains only the secrets and some others the non sensitive override allowing to store them in a vcs
@@ -73,17 +73,19 @@ Other modes
 
 1. Secrets: JWT, Mongo credentials, recaptcha key
 
+**Caution** From 1.0 the secrets are base64 encoded by the helm template, no need to manually encode them (specially jwtKey, googleRecaptchaKey )
+
     - `jwtKey`: base64 encoded key used for generating user authentication tokens, see [Generating a JWT key ](#generating-a-jwt-key ) for instructions on how to generate a key
 
     - `mongoUsername`: used to setup the mongo admin account
 
     - `mongoPassword`: password associated to the mongo admin account
 
-    - `googleRecaptchaKey`: base64 encoded secret key associated to a Google recaptcha account, see [Generating a recaptcha key](#generating-a-recaptcha-key) for instructions on how to obtain a key
+    - `googleRecaptchaKey`:  secret key associated to a Google recaptcha account, see [Generating a recaptcha key](#generating-a-recaptcha-key) for instructions on how to obtain a key
 
     - `studyGlobalSecret` : base64 encoded value of global secret for study service 
 
-2. Persistent volume configurations (for mongoDB service)
+1. Persistent volume configurations (for mongoDB service)
 
     Detailed information on these configuration values can be found in Kubernetes' documentation on [Persistent Volumes]( https://kubernetes.io/docs/concepts/storage/persistent-volumes/).
 
@@ -113,7 +115,7 @@ Other modes
 
 6. Microservice specific sections, containing configurations of the Kubernetes [deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) and [service](https://kubernetes.io/docs/concepts/services-networking/service/) for each of the microservices. This includes docker image paths for each microservice, environment variables, port configurations and persistent volume attachments if needed. The most important value you need to change for each microservice is the location of the Dockerhub image:
 
-Each microservice has its own entry in the values file and can be overriden:
+Each microservice has its own entry in the values file and can be overridden:
 
 - svcEmailClient
 - svcLogging
@@ -129,7 +131,6 @@ Each provides a set of parameters to configure the service under the service nam
 Most common parameters are:
  - image: name of the image to use
  - replicas: number of replicas to use
- - 
 
 For example to override the image and replicas uses 
 ```yaml
@@ -148,7 +149,6 @@ svcManagementApi:
 svcParticipantApi:
   corsAllowOrigins: "http://youdomain.com,https://yourdomain.com" # idem 
 
-
 ```
 
 For the others parameters, see in values.yml for each service
@@ -159,14 +159,9 @@ The script used to generate a JWT key is hosted in the [user-management-service]
 ``` sh
 go run main.go
 ```
-
-copy the generated key and encode it in base64 format:
-
-``` sh
-echo -ne [jwt_key] | base64
-```
-
 put this value into to the `jwtKey` field.
+
+** Warning ** the step with base64 tool is not needed any more (the jwtKey provided by the tool is already a base64 encoded value)
 
 #### Generating a recaptcha key
 
@@ -186,13 +181,7 @@ To generate a Google recaptcha key pair follow these steps:
 
 - the public key is the one to be used it in the REACT_APP_RECAPTCHA_SITEKEY field in your [participant-webapp](https://github.com/influenzanet/participant-webapp) configuration file.
 
-- the secret key is the one we need but must be base64 encoded before being put in `values.yml`:
-
-    ```sh
-    echo -ne [secret_key_here] | base64
-    ```
-
-- use the encoded value in the `googleRecaptchaKey` field.
+- use the private key value in the `googleRecaptchaKey` value.
 
 ### Deployment Steps
 
