@@ -125,7 +125,7 @@ svcWebParticipant:
 # EMAIL CLIENT #
 svcEmailClient:
   name: email-client
-  image: sajeeth1009/email-client-service-image:v0.9.1
+  image: influenzanet/email-client-service-image:v0.9.3
   imagePullPolicy: Always
   replicas: 1
   containerPort: 5005
@@ -136,7 +136,7 @@ svcEmailClient:
 svcLogging:
   name: logging
   replicas: 1
-  image: sajeeth1009/logging-service-image:v0.1.0
+  image: influenzanet/logging-service-image:v0.2.0
   containerPort: 5006
   serviceName: logging-service
   dbSecretName: case-mongodb-atlas
@@ -145,7 +145,7 @@ svcLogging:
 #  MANAGEMENT API #
 svcManagementApi:
   name: management-api
-  image: sajeeth1009/management-api-image:v0.12.1
+  image: influenzanet/management-api-image:v0.15.1
   containerPort: 3232      
   corsAllowOrigins: 'https://tofudumplings.com,http://tofudumplings.com'
   debugMode: "false"
@@ -153,7 +153,7 @@ svcManagementApi:
 
 svcParticipantApi:
   name: participant-api
-  image: sajeeth1009/participant-api-image:v0.12.1
+  image: influenzanet/participant-api-image:v0.15.1
   containerPort: 3231
   corsAllowOrigins: 'https://tofudumplings.com,http://tofudumplings.com'
   debugMode: "false"
@@ -165,7 +165,7 @@ svcParticipantApi:
 SvcMessageScheduler:
   name: messaging-scheduler
   replicas: 1
-  image: 
+  image: influenzanet/messaging-scheduler-image:v0.9.3
   containerPort: 5009
   serviceName: messaging-scheduler-service
   dbTimeout: 30
@@ -181,7 +181,7 @@ SvcMessageScheduler:
 svcMessaging:
   name: messaging
   replicas: 1
-  image: sajeeth1009/messaging-service-image:v0.9.1
+  image: influenzanet/messaging-service-image:v0.9.3
   containerPort: 5004
   serviceName: messaging-service
   dbTimeout: 30
@@ -214,7 +214,7 @@ svcMongoDb:
 
 svcStudyService:
   name: study
-  image: sajeeth1009/study-service-image:v0.13.4
+  image: influenzanet/study-service-image:v0.16.2
   replicas: 1
   serviceName: study-service
   containerPort: 5003
@@ -228,7 +228,7 @@ svcStudyService:
 # USER MANAGEMENT SERVICE #
 svcUserManagement:
   name: user-management
-  image: sajeeth1009/user-management-image:v0.19.2
+  image: influenzanet/user-management-image:v0.20.4
   replicas: 1
   serviceName: "user-management-service"
   containerPort: 5002
