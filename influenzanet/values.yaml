@@ -18,7 +18,8 @@ useRecaptcha: true
 domain: example.com
 
 ingress:
-  ApiVersion: v1
+  enabled: true
+  name: ingress-web
   # Use a simplified Ingress configuration (with wildcard path instead of specific)
   simplified: true
 
