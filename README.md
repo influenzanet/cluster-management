@@ -27,53 +27,48 @@ This guide will walk you through creating a Kubernetes deployment for the Influe
 
 ### Set up
 
-Before proceeding, configure the `influenzanet/values.yaml` file to reflect the defaults values for all possible parameters of your deployment. 
+Before proceeding, configure the [influenzanet/values.yaml](./influenzanet/values.yaml) file to reflect the default values for all possible parameters of your deployment.
 
-It's also possible to create an empty yaml file to be used to override the values in the influenzanet/values.yaml (it's advised to store this file in a secure location since it will contains some sensitive values or to separate the sensitive values in an other overriding file). You can use several yaml in cascade (using the -f option several times). For example one for the common config for the instance and one or several for the deployment environment and one another for the secrets (this last can be stored in a secure location and the previous ones tracked with a VCS like git).
-
-When installing/updating the helm chart you can pass the option -f with the path of your yaml file, it will be used to override the values. You can pass several times this option with different to cascade the overrides. This can be useful if you use several settings with common parameters, for example production and dev environment.
-A last file can contains only the secrets and some others the non sensitive override allowing to store them in a vcs
+It's also possible to create an empty `yaml` file to be used to override the values in the [influenzanet/values.yaml](./influenzanet/values.yaml) (it's advised to store this file in a secure location since it will contain some sensitive values or to separate the sensitive values in an other overriding file). You can use several `yaml` files in cascade (using the -f option several times). For example one for the common config for the instance and one or several others for the production/deployment environments and yet one another for the secrets (this last can be stored in a secure location and the previous ones tracked with a VCS like git).
 
 In the `values.yaml` file you will find the following configuration values:
 
-1. namespace, domain and back-end path configurations
+1. namespace, domains, database prefix and back-end path configurations
 
     - `namespace`: the namespace under which each Kubernets component of Influenzanet will be registered, eg: `italy`
     - `domain`: the domain name hosting the platform, eg: `influweb.org`
     - `tlsDomains`: array of additional domain names redirected to the base domain, eg: `[influweb.org, influweb.it]`
     - `participantApiPath`: the path under which the participant API are served, eg: `/api`
     - `managementApiPath`: the path under which the management API are served, eg: `/admin`
-    - `useRecaptcha`: use Recaptcha for signup if 'true', skip if 'false'
-    - `dbNamePrefix`: Prefix to use for instance database (to enable multi tenant database)
+    - `useRecaptcha`: if 'true', use Google Recaptcha for protecting the signup process, skip if 'false'
+    - `dbNamePrefix`: prefix to use for the database instance (useful for multi tenant database scenarios)
 
-Under the ingress entry
+1. ingress configuration
 
-```yaml
-ingress:
-  simplified: true # Use simplified ingress version
-
-```
+    - `enabled`: 'true' for enabling ingress configuration found in [ingress.yaml](./influenzanet/templates/ingress.yaml)
+    - `name`: a name for the ingress template found in [ingress.yaml](./influenzanet/templates/ingress.yaml)
+    - `simplfied`: 'true' for enabling a simplified ingress (requires an up to date version of [participant-webapp](https://github.com/influenzanet/participant-webapp)
 
 1. TLS certificate configurations
 
-Using ACME Letsencrypt service
+    Using ACME Letsencrypt service
 
- - `acmeServer`:  URL for the ACME server issuing TLS certificates, eg: `https://acme-v02.api.letsencrypt.org/directory`
+     - `acmeServer`:  URL for the ACME server issuing TLS certificates, eg: `https://acme-v02.api.letsencrypt.org/directory`
 
- - `clusterIssuer`: name assigned to the ACME server, eg: `letsencrypt`
+     - `clusterIssuer`: name assigned to the ACME server, eg: `letsencrypt`
 
- - `acmeEmail`: email associated to the ACME server, will receive maintenance communication from the acme server.
+     - `acmeEmail`: email associated to the ACME server, will receive maintenance communication from the acme server.
 
-Other modes
+    Other modes
 
-`issuerType` can be used to switch to another certificate issuer type
-  - 'ca' value will use a local CA. The value `CAIssuerSecretName` should contains the name of the secret containing the CA private key and certificate 
-    You have to create it manually before to use it in the cluster (this intented to be only for dev mode)
-  - 'none' wont create certificate issuer
+    `issuerType` can be used to switch to another certificate issuer type
+      - 'ca' value will use a local CA. The value `CAIssuerSecretName` should contain the name of the secret containing the CA private key and certificate 
+        You have to create it manually before using it in the cluster (this intended to be used only in dev mode)
+      - 'none' won't create a certificate issuer
 
 1. Secrets: JWT, Mongo credentials, recaptcha key
 
-**Caution** From 1.0 the secrets are base64 encoded by the helm template, no need to manually encode them (specially jwtKey, googleRecaptchaKey )
+    **Caution**: chart version `v1.0` onward, the secrets are base64 encoded by the helm template, no need to manually encode them (specially `jwtKey`, `googleRecaptchaKey` and `studyGlobalSecret`)
 
     - `jwtKey`: base64 encoded key used for generating user authentication tokens, see [Generating a JWT key ](#generating-a-jwt-key ) for instructions on how to generate a key
 
@@ -81,25 +76,30 @@ Other modes
 
     - `mongoPassword`: password associated to the mongo admin account
 
-    - `googleRecaptchaKey`:  secret key associated to a Google recaptcha account, see [Generating a recaptcha key](#generating-a-recaptcha-key) for instructions on how to obtain a key
+    - `googleRecaptchaKey`: secret key associated to a Google recaptcha account, see [Generating a recaptcha key](#generating-a-recaptcha-key) for instructions on how to obtain a key
 
-    - `studyGlobalSecret` : base64 encoded value of global secret for study service 
+    - `studyGlobalSecret`: global secret used by [study-service](https://github.com/influenzanet/study-service)
 
 1. Persistent volume configurations (for mongoDB service)
 
     Detailed information on these configuration values can be found in Kubernetes' documentation on [Persistent Volumes]( https://kubernetes.io/docs/concepts/storage/persistent-volumes/).
 
-    - `createStorageClass` : if you use already existing storageClass (provided by a cloud provider, set this value to false)
+    - `createStorageClass`: 'true' for creating the `influenzanet-storage` storage class defined in [storageClass.yaml](./influenzanet/templates/storageClass.yaml), if you plan to use a default storageClass (eg: one from your cloud provider), set this value to 'false'
 
-  Under the entry svcMongoDb (values are the default values given as example. Omit an entry to use the default)
+    Under the entry `svcMongoDb` you can specify the storage class to be used, eg: (values are the default values given as example, omit the `storageClass` an entry to use the default class from your cloud provider)
 
-  ```yaml
-  svcMongoDb:
-    storageClass: influenzanet-storage # the storage class used by Kubernetes when requesting storage for the mongo database
-    accessModes: # Access mode for the storage 
-      - ReadWriteOnce  # By default the storage can only be accessed by one pod at time
-    storageRequested: `50Gi` # size allocated for the storage, 
-  ```
+    ```yaml
+    svcMongoDb:
+      # the storage class used by Kubernetes when requesting storage for the
+      # mongo database
+      storageClass: influenzanet-storage
+      # Access mode for the storage 
+      accessModes:
+        # By default the storage can only be accessed by one pod at time
+        - ReadWriteOnce 
+      # size allocated for the storage, 
+      storageRequested: `50Gi` 
+    ```
 
 5. SMTP configurations for Email sending
 
@@ -113,45 +113,47 @@ Other modes
         - `port`: SMTP port
         - `auth`: contains the username and password credentials for the mailing service.
 
-6. Microservice specific sections, containing configurations of the Kubernetes [deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) and [service](https://kubernetes.io/docs/concepts/services-networking/service/) for each of the microservices. This includes docker image paths for each microservice, environment variables, port configurations and persistent volume attachments if needed. The most important value you need to change for each microservice is the location of the Dockerhub image:
+6. Microservice specific sections, containing configurations of the Kubernetes [deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) and [service](https://kubernetes.io/docs/concepts/services-networking/service/) for each of the microservices. This includes docker image paths for each microservice, environment variables, port configurations and persistent volume attachments if needed. The most important value you need to change for each microservice is the location of the Dockerhub image.
 
-Each microservice has its own entry in the values file and can be overridden:
+   Each microservice has its own entry in the values file and can be overridden:
 
-- svcEmailClient
-- svcLogging
-- svcManagementApi
-- svcParticipantApi
-- svcUserManagement
-- svcMessaging
-- svcStudyService
-- SvcMessageScheduler
+   - `svcEmailClient`
+   - `svcLogging`
+   - `svcManagementApi`
+   - `svcParticipantApi`
+   - `svcUserManagement`
+   - `svcMessaging`
+   - `svcStudyService`
+   - `SvcMessageScheduler`
 
-Each provides a set of parameters to configure the service under the service name entry
+   Each entry provides a set of parameters to configure the service under that particular service. The most important parameters are:
+   
+   - `image`: name of the image to use
+   - `replicas`: number of replicas to use
 
-Most common parameters are:
- - image: name of the image to use
- - replicas: number of replicas to use
+   For example, to override the image and replicas use:
+   
+   ```yaml
 
-For example to override the image and replicas uses 
-```yaml
+   svcWebParticipant:
+     image: myrepo/webparticipant-image:v1.2 # <docker image ref>
+     replicas: 2 # Number of replicas to use for the service
+   ```
 
-svcWebParticipant:
-  image: myrepo/webparticipant-image:v1.2 # <docker image ref>
-  replicas: 2 # Number of replicas to use for the service
-```
+   For some other services you will need to override some value for your deployment:
 
-For some services you will need to override value for your deployment
+   ```yaml
+   svcManagementApi:
+     # Domains allowed to use the api (client side security)
+     corsAllowOrigins: "http://youdomain.com,https://yourdomain.com"
+   svcParticipantApi:
+     # same as above 
+     corsAllowOrigins: "http://youdomain.com,https://yourdomain.com"
 
-```yaml
-svcManagementApi:
- corsAllowOrigins: "http://youdomain.com,https://yourdomain.com" # Domains allowed to use the api (client side security)
+   ```
 
-svcParticipantApi:
-  corsAllowOrigins: "http://youdomain.com,https://yourdomain.com" # idem 
+   For the other parameters, refer to the default values in [influenzanet/values.yaml](./influenzanet/values.yaml) for each service.
 
-```
-
-For the others parameters, see in values.yml for each service
 #### Generating a JWT key
 
 The script used to generate a JWT key is hosted in the [user-management-service](https://github.com/influenzanet/user-management-service) repository. To generate a key cd into the directory `tools/key-generator` and run:
@@ -160,8 +162,6 @@ The script used to generate a JWT key is hosted in the [user-management-service]
 go run main.go
 ```
 put this value into to the `jwtKey` field.
-
-** Warning ** the step with base64 tool is not needed any more (the jwtKey provided by the tool is already a base64 encoded value)
 
 #### Generating a recaptcha key
 
