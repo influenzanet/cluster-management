@@ -1,0 +1,94 @@
+{{- with .Values.SvcMessageScheduler }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ .name }}
+spec: 
+  replicas: {{ .replicas }}
+  selector:
+    matchLabels:
+      app: {{ .name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .name }}
+    spec:
+      containers:
+      - name: {{ .name }}
+        image: {{ .image }}
+        imagePullPolicy: {{ .imagePullPolicy | default "Always" }}
+        env:
+          - name: GLOBAL_DB_CONNECTION_STR
+            value: {{ $.Values.globalDb.dbConnexionStr }}
+          - name: GLOBAL_DB_CONNECTION_PREFIX
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.globalDb.dbSecretName }}
+                key: connectionPrefix
+          - name: GLOBAL_DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.globalDb.dbSecretName }}
+                key: username
+          - name: GLOBAL_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.globalDb.dbSecretName }}
+                key: password
+          - name: MESSAGE_DB_CONNECTION_STR
+            value: {{ $.Values.messageDB.dbConnexionStr }}
+          - name: MESSAGE_DB_CONNECTION_PREFIX
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.messageDB.dbSecretName }}
+                key: connectionPrefix
+          - name: MESSAGE_DB_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.messageDB.dbSecretName }}
+                key: username
+          - name: MESSAGE_DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.messageDB.dbSecretName }}
+                key: password
+          - name: DB_TIMEOUT
+            value: "{{ .dbTimeout }}"
+          - name: DB_IDLE_CONN_TIMEOUT
+            value: "{{ .dbIdleTimeout }}"
+          - name: DB_MAX_POOL_SIZE
+            value: "8"
+          - name: DB_DB_NAME_PREFIX
+            value: "{{ $.Values.dbNamePrefix }}"
+          - name: MESSAGE_SCHEDULER_INTERVAL_HIGH_PRIO
+            value: "{{ .intervalHighPrio }}"
+          - name: MESSAGE_SCHEDULER_INTERVAL_LOW_PRIO
+            value: "{{ .intervalLowPrio }}"
+          - name: MESSAGE_SCHEDULER_INTERVAL_AUTO_MESSAGE
+            value: "{{ .intervalAutoMessage }}"
+          - name: ADDR_USER_MANAGEMENT_SERVICE
+            value: "{{ template "ref.UserManagement" $ }}"
+          - name: ADDR_STUDY_SERVICE
+            value: "{{ template "ref.StudyService" $ }}"
+          - name: ADDR_EMAIL_CLIENT_SERVICE
+            value: "{{ template "ref.emailClientService" $ }}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .serviceName}}
+  namespace: {{ $.Values.namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: message-scheduler
+  ports:
+    - name: grpc
+      protocol: TCP
+      port: {{ .containerPort }}
+      targetPort: {{ .containerPort }}
+{{- end }}

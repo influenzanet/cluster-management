@@ -1,0 +1,99 @@
+{{- with .Values.svcStudyService }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ .name }}
+spec:
+  replicas: {{ .replicas }}
+  selector:
+    matchLabels:
+      app: {{ .name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .name }}
+    spec:
+      containers:
+        - name: study
+          image: {{ .image }}
+          imagePullPolicy: {{ .imagePullPolicy | default "Always" }}
+          env:
+            - name: STUDY_SERVICE_LISTEN_PORT
+              value: "{{.containerPort }}"
+            - name: DB_TIMEOUT
+              value: "{{ .dbTimeout }}"
+            - name: DB_IDLE_CONN_TIMEOUT
+              value: "{{ .dbIdleTimeout }}"
+            - name: DB_MAX_POOL_SIZE
+              value: "8"
+            - name: DB_DB_NAME_PREFIX
+              value: "{{ $.Values.dbNamePrefix }}"
+            - name: GLOBAL_DB_CONNECTION_STR
+              value: {{ quote $.Values.globalDb.dbConnexionStr }}
+            - name: GLOBAL_DB_CONNECTION_PREFIX
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.globalDb.dbSecretName }}
+                  key: connectionPrefix
+            - name: GLOBAL_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.globalDb.dbSecretName }}
+                  key: username
+            - name: GLOBAL_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.globalDb.dbSecretName }}
+                  key: password
+            - name: STUDY_DB_CONNECTION_STR
+              value: {{ quote $.Values.studyDB.dbConnexionStr }}
+            - name: STUDY_DB_CONNECTION_PREFIX
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.studyDB.dbSecretName }}
+                  key: connectionPrefix
+            - name: STUDY_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.studyDB.dbSecretName }}
+                  key: username
+            - name: STUDY_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.studyDB.dbSecretName }}
+                  key: password
+            - name: STUDY_TIMER_EVENT_FREQUENCY
+              value: {{ .timerEventFrequency | quote }}
+            - name: STUDY_TIMER_EVENT_CHECK_INTERVAL_MIN
+              value: {{ .timerEventCheckIntervalMin | quote }}
+            - name: STUDY_TIMER_EVENT_CHECK_INTERVAL_VAR
+              value: {{ .timerEventCheckIntervalVar | quote }}
+            - name: STUDY_GLOBAL_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .globalSecretName }}
+                  key: secret
+            - name: ADDR_LOGGING_SERVICE
+              value: "{{ template "ref.loggingService" $ }}"
+          ports:
+            - containerPort: {{ .containerPort }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .serviceName }}
+  namespace: {{ $.Values.namespace }}
+spec: 
+  type: ClusterIP
+  selector:
+    app: study
+  ports:
+    - name: grpc
+      protocol: TCP
+      port: {{ .containerPort }}
+      targetPort: {{ .containerPort }}
+{{- end }}

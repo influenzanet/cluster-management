@@ -1,0 +1,69 @@
+{{- with .Values.svcLogging }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ .name }}
+spec: 
+  replicas: {{ .replicas }}
+  selector:
+    matchLabels:
+      app: {{ .name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .name }}
+    spec:
+      containers:
+        - name: {{ .name }}
+          image: {{ .image }}
+          imagePullPolicy: Always
+          env:
+            - name: LOGGING_SERVICE_LISTEN_PORT
+              value: "{{ .containerPort }}"
+            - name: DB_TIMEOUT
+              value: "30"
+            - name: DB_IDLE_CONN_TIMEOUT
+              value: "46"
+            - name: DB_MAX_POOL_SIZE
+              value: "8"
+            - name: DB_DB_NAME_PREFIX
+              value: "{{ $.Values.dbNamePrefix }}"
+            - name: LOG_DB_CONNECTION_STR
+              value: "{{ .dbConnexionStr }}"
+            - name: LOG_DB_CONNECTION_PREFIX
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .dbSecretName }}
+                  key: connectionPrefix
+            - name: LOG_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .dbSecretName }}
+                  key: username
+            - name: LOG_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .dbSecretName }}
+                  key: password
+          ports:
+            - containerPort: {{ .containerPort }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .name }}
+  ports:
+    - name: grpc
+      protocol: TCP
+      port: {{ .containerPort }}
+      targetPort: {{ .containerPort }}
+{{- end }}

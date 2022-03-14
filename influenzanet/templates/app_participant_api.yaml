@@ -1,0 +1,67 @@
+{{- with .Values.svcParticipantApi }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ .name }}
+spec: 
+    replicas: 1
+    selector:
+        matchLabels:
+          app: {{ .name }}
+    template:
+        metadata:
+          labels:
+            app: {{ .name }}
+        spec:
+          containers:
+            - name: {{ .name }}
+              image: {{ .image }}
+              imagePullPolicy: {{ .imagePullPolicy | default "Always" }}
+              env:
+                - name: USE_DELETE_PARTICIPANT_DATA_ENDPOINT
+                  value: {{ .useDeleteEndpoint | quote }}
+                - name: GATEWAY_LISTEN_PORT
+                  value: {{ .containerPort | quote }}
+                - name: CORS_ALLOW_ORIGINS
+                  value: {{ .corsAllowOrigins | quote }}
+                - name: DEBUG_MODE
+                  value: {{ .debugMode | quote }}
+                - name: ADDR_USER_MANAGEMENT_SERVICE
+                  value: "{{ template "ref.UserManagement" $ }}"
+                - name: ADDR_STUDY_SERVICE
+                  value: "{{ template "ref.StudyService" $ }}"
+                - name: ADDR_MESSAGING_SERVICE
+                  value: "{{ template "ref.MessagingService" $ }}"
+                - name: DISABLE_SIGNUP_WITH_EMAIL_ENDPOINT
+                  value: {{ .disableSignupEndpoint | quote }}
+                - name: USE_RECAPTCHA
+                  value: "{{ $.Values.useRecaptcha }}"
+                {{ if eq $.Values.useRecaptcha true }}
+                - name: RECAPTCHA_SECRET
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .recaptchaSecretName }}
+                      key: recaptchaKey
+                {{ end }}
+              ports:
+                - containerPort: {{ .containerPort }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .serviceName }}
+  namespace: {{ $.Values.namespace }}
+spec: 
+  type: NodePort
+  selector:
+      app: {{ .name }}
+  ports:
+    - name: grpc
+      protocol: TCP
+      port: {{ .containerPort }}
+      targetPort: {{ .containerPort }}
+{{- end }}
