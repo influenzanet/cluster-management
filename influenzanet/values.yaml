@@ -48,18 +48,16 @@ CAIssuerSecretName: 'ca-issuer-secret'
 # Secrets Configuration Section
 
 # JSON Web Token secret key (32 bytes random, base64 encoded). 
-# Caution from 1.0 version of this chart they have not to be double base64 encoded 
 jwtKey: ""
 mongoUsername: "admin"
 mongoPassword: "abc123"
 mongoConnectionPrefix: ""
 
-# Caution from 1.0 version of this chart they have not to be double base64 encoded 
-# Real value given by google is expected here
+# The actual value given by google is expected here
 googleRecaptchaKey: ""
 
-# Base64 encoded studyGlobalSecret
-# Caution from 1.0 version of this chart they have not to be double base64 encoded 
+# studyGlobalSecret, used together with a study secretKey to compute a
+# participantID from a profileID, should be a string with high entropy
 studyGlobalSecret: ""
 
 # Persistant Storage Section
