@@ -87,6 +87,8 @@ spec:
           value: {{ .newUserRateLimit | quote }}
         - name: CLEAN_UP_UNVERIFIED_USERS_AFTER
           value: {{ .cleanupUnverifiedUsersAfter | quote }}
+        - name: SEND_REMINDER_TO_UNVERIFIED_USERS_AFTER
+          value: {{ .sendReminderToUnverifiedUserAfter | quote }}
         - name: VERIFICATION_CODE_LIFETIME
           value: {{ .verificationCodeLifetime | quote }}
         ports:
