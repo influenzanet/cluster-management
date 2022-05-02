@@ -20,7 +20,7 @@ spec:
       containers:
         - name: {{ .name }}
           image: {{ .image }}
-          imagePullPolicy: {{ .imagePullPolicy }}
+          imagePullPolicy: {{ .imagePullPolicy | default "Always" }}
           ports:
             - containerPort: {{ .containerPort }} 
 ---

@@ -20,7 +20,7 @@ spec:
       containers:
         - name: {{ .name }}
           image: {{ .image }}
-          imagePullPolicy: Always
+          imagePullPolicy: {{ .imagePullPolicy | default "Always" }}
           env:
             - name: LOGGING_SERVICE_LISTEN_PORT
               value: "{{ .containerPort }}"
