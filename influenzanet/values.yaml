@@ -135,6 +135,7 @@ svcLogging:
   name: logging
   replicas: 1
   image: influenzanet/logging-service-image:v0.2.0
+  imagePullPolicy: Always
   containerPort: 5006
   serviceName: logging-service
   dbSecretName: case-mongodb-atlas
@@ -144,6 +145,7 @@ svcLogging:
 svcManagementApi:
   name: management-api
   image: influenzanet/management-api-image:v0.15.1
+  imagePullPolicy: Always
   containerPort: 3232      
   corsAllowOrigins: 'https://tofudumplings.com,http://tofudumplings.com'
   debugMode: "false"
@@ -152,6 +154,7 @@ svcManagementApi:
 svcParticipantApi:
   name: participant-api
   image: influenzanet/participant-api-image:v0.15.1
+  imagePullPolicy: Always
   containerPort: 3231
   corsAllowOrigins: 'https://tofudumplings.com,http://tofudumplings.com'
   debugMode: "false"
@@ -164,6 +167,7 @@ SvcMessageScheduler:
   name: messaging-scheduler
   replicas: 1
   image: influenzanet/messaging-scheduler-image:v0.9.3
+  imagePullPolicy: Always
   containerPort: 5009
   serviceName: messaging-scheduler-service
   dbTimeout: 30
@@ -180,6 +184,7 @@ svcMessaging:
   name: messaging
   replicas: 1
   image: influenzanet/messaging-service-image:v0.9.3
+  imagePullPolicy: Always
   containerPort: 5004
   serviceName: messaging-service
   dbTimeout: 30
@@ -191,6 +196,7 @@ svcMongoDb:
   serviceName: mongo-atlas-service
   replicas: 1
   image: mongo:latest
+  imagePullPolicy: Always
   # Secret used to create the ROOT password, should have 'username' & password entry
   dbSecretName: case-mongodb-atlas
   containerPort: 27017
@@ -213,6 +219,7 @@ svcMongoDb:
 svcStudyService:
   name: study
   image: influenzanet/study-service-image:v0.16.2
+  imagePullPolicy: Always
   replicas: 1
   serviceName: study-service
   containerPort: 5003
@@ -227,6 +234,7 @@ svcStudyService:
 svcUserManagement:
   name: user-management
   image: influenzanet/user-management-image:v0.20.4
+  imagePullPolicy: Always
   replicas: 1
   serviceName: "user-management-service"
   containerPort: 5002
