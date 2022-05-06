@@ -1,0 +1,29 @@
+# image name of the admin scripts to use, the version is hardcoded in the chart
+admin_scripts_image: "influweb/admin-scripts"
+
+# url of the management api
+management_api_url: "http://management-api-service:3232"
+
+# url of the participant api
+participant_api_url: "http://participant-api-service:3231"
+
+# user credentials to access the apis
+user_credentials:
+  email: "email"
+  password: "password"
+
+# two letter iso name for the preferred language for the migration
+language: "en"
+
+# use two factors authentication
+use2FA: true
+
+# ignore empy profiles 
+skipEmptyProfiles: true
+    
+# study keys to be assigned to the users
+studyKeys:
+  - influweb
+
+# crontab like syntax for the job scheduler
+schedule: "0 4-7 * * *"

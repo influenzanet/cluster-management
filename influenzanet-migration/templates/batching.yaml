@@ -1,0 +1,89 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "batching-config"
+  namespace: {{ .Values.namespace | quote }}
+data:
+  batching.sh: |
+
+    USERS=/data/active_users.json
+    BATCH_LOGS="`dirname $USERS`/batch_log_`date "+%d-%B-%Y_%s"`"
+    TEMP_BATCHES="`dirname $USERS`/users_batches"
+    USERS_BATCHES="/data/migration/users_batches"
+
+    batch_users() {
+        BATCH_SIZE=100
+        python /app/study-manager-scripts/batch_exported_users.py \
+            --batch_size $BATCH_SIZE \
+            --no_deliverability \
+            --user_json $USERS
+    }
+
+    if [ -e $USERS_BATCHES ]
+    then
+        echo "[ERROR] $USERS_BATCHES already present." 1>&2
+        exit 1
+    fi
+
+    if [ -e  "$TEMP_BATCHES" ]
+    then
+        echo "$TEMP_BATCHES found, something went wrong, retrying batching."
+        rm -rf "`dirname $USERS`/users_batches"
+    fi
+
+    while :
+    do
+        if [ -e $USERS ]
+        then
+
+            batch_users > "$BATCH_LOGS.out" 2> "$BATCH_LOGS.err"
+
+            if [ $? -eq 0 ]
+            then
+                mkdir -p "`dirname $USERS_BATCHES`"
+                mv "$TEMP_BATCHES" "$USERS_BATCHES"
+                echo "$USERS_BATCHES created successfully."
+                exit 0
+            else
+                echo "[ERROR] $USERS batching failed! Check $BATCH_LOGS." 1>&2
+                exit 1
+            fi
+        fi
+
+        sleep 10
+
+    done    
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "users-batching"
+  namespace: {{ .Values.namespace | quote }}
+  labels:
+    app: "users-batching"
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: "users-batching"
+    spec:
+      restartPolicy: "Never"
+      volumes:
+        - name: "migration-pv"
+          persistentVolumeClaim:
+            claimName: "migration-pv-claim"
+        - name: "migration-volume"
+          configMap:
+            name: "batching-config"
+      containers:
+      - name: "batching-container"
+        image: {{ .Values.admin_scripts_image }}:v1.0.0
+        command:
+          - /bin/bash
+          - /config/batching.sh
+        volumeMounts:
+          - mountPath: "/config"
+            name: "migration-volume"
+          - mountPath: "/data"
+            name: "migration-pv"
