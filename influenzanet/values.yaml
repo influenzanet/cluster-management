@@ -37,7 +37,7 @@ issuerType: acme
 # Cluster issuer Name
 clusterIssuer : "letsencrypt-prod-site"
 acmeServer: https://acme-v02.api.letsencrypt.org/directory
-acmeEmail: sajeeth.sadananda@isi.it
+acmeEmail: user.name@domain.com
 
 # Name of the secret used to store the generated certificat will be stored
 tlsSecretName: 'site-tls-web'
@@ -115,7 +115,7 @@ userDB:
 svcWebParticipant:
     name: web-client
     replicas: 1
-    image: sajeeth1009/participant-webapp:v0.0.1
+    image: influenzanet/participant-webapp:v0.0.1
     imagePullPolicy: Always
     containerPort: 3100
     serviceName: web-client-service
