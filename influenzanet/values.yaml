@@ -252,10 +252,12 @@ svcUserManagement:
   # Maximum number of new created accounts, during the signupRateLimitWindow (5 minutes)
   newUserRateLimit: 100
   # Delay (seconds) after which to cleanup user account when it has not been verified
-  cleanupUnverifiedUsersAfter: 129000
+  # NOTE: do not remove quotes to prevent large int conversion to exponential notation
+  cleanupUnverifiedUsersAfter: "129000"
   # Delay (seconds) after which to send a reminder to unverified users If the
   # reminder should not be used, simply set this value to a larger number than
   # the value used to clean up unverified users
-  sendReminderToUnverifiedUserAfter: 1290000
+  # NOTE: do not remove quotes to prevent large int conversion to exponential notation
+  sendReminderToUnverifiedUserAfter: "1290000"
   # Lifetime in seconds for verification code of a new account. Default is 15 minutes
   verificationCodeLifetime: 900
