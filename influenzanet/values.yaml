@@ -197,7 +197,7 @@ svcMongoDb:
   replicas: 1
   # NOTE: if using 'Always' pull policy, do not use 'latest' as image version in
   # order to prevent unwanted updates when the pod is recreated
-  image: mongo:v5.0
+  image: mongo:5.0
   imagePullPolicy: Always
   # Secret used to create the ROOT password, should have 'username' & password entry
   dbSecretName: case-mongodb-atlas
