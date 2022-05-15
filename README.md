@@ -187,11 +187,15 @@ To generate a Google recaptcha key pair follow these steps:
 
 Once the repository has been checked out into the server and your configuration is in place:
 
-1. Run the deployment script `install_start.sh` for the first time you set up the system.
+1. Run the deployment script `install_deps.sh` for the first time you set up the system.
 
-2. To stop and clean-up the Influenzanet services from the cluster run `stop.sh`
+2. To install/uninstall the base Influenzanet services from the cluster run:
 
-3. To reinstall the Influenzanet services platform after a clean-up, only run `start.sh` (prevents unnecessary re-installation of nginx ingress & certificate manager)
+``` sh
+helm install influenzanet influenzanet / helm uninstall influenzanet
+```
+
+3. To uninstall the Influenzanet dependencies run `uninstall_deps.sh`
 
 ### Additional charts
 
