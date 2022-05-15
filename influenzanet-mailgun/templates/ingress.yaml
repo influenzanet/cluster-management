@@ -1,12 +1,12 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-mailgun
   namespace: {{ .Values.namespace }}
   annotations:
-    kubernetes.io/ingress.class: "nginx"
     cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }}
 spec:
+  ingressClassName: nginx
   tls:
   - hosts:
       - {{ .Values.domain }}
@@ -16,6 +16,8 @@ spec:
       http:
         paths:
           - backend:
-              serviceName: mailgun-webhook-service
-              servicePort: 8080
+              service:
+                name: mailgun-webhook-service
+                port:
+                  number: 8080
             path: {{ .Values.endpoint }}

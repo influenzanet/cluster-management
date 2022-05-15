@@ -1,11 +1,12 @@
-apiVersion: networking.k8s.io/v1beta1
+apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-maintenance
   namespace: {{ .Values.namespace }}
   annotations:
-    kubernetes.io/ingress.class: "nginx"
+{{- if not (eq .Values.issuerType "none") }}
     cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }}
+{{- end }}
     nginx.ingress.kubernetes.io/server-snippet: |
 
       if ($http_user_agent != "{{ .Values.allowAgent}}"){
@@ -19,6 +20,7 @@ metadata:
         proxy_pass http://maintenance-service.italy.svc.cluster.local:3100;
       }
 spec:
+  ingressClassName: nginx
   tls:
   - hosts:
     - {{ .Values.domain }}
@@ -28,6 +30,9 @@ spec:
       http:
         paths:
           - backend:
-              serviceName: maintenance-service
-              servicePort: 3100
+              service:
+                name: maintenance-service
+                port:
+                  number: 3100
             path: /
+            pathType: ImplementationSpecific
