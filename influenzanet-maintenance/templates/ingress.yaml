@@ -9,15 +9,17 @@ metadata:
 {{- end }}
     nginx.ingress.kubernetes.io/server-snippet: |
 
-      if ($http_user_agent != "{{ .Values.allowAgent}}"){
-        return 503;
+      location ~ ^/(?!.well-known/acme-challenge/) {
+        if ($http_user_agent != "{{ .Values.allowAgent}}"){
+          return 503;
+        }
       }
 
       error_page 503 = @errorpage;
 
       location @errorpage {
         proxy_set_header X-Code $status;
-        proxy_pass http://maintenance-service.italy.svc.cluster.local:3100;
+        proxy_pass http://maintenance-service.{{ .Values.namespace }}.svc.cluster.local:3100;
       }
 spec:
   ingressClassName: nginx
