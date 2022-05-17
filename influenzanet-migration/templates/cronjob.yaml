@@ -79,7 +79,7 @@ spec:
           restartPolicy: "Never"
           containers:
           - name: "invite-users"
-            image: "{{ .Values.admin_scripts_image }}:v1.0.0"
+            image: "{{ .Values.admin_scripts_image }}"
             command:
               - /bin/bash
               - /config/migrate-batch.sh

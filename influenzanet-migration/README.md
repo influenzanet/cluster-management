@@ -8,7 +8,7 @@ In order for the migration to work, you need to copy the users.json file contain
 
 ## Configurations
 
-- `admin_scripts_image`: image name of the admin scripts to use, the version is hardcoded in the chart  
+- `admin_scripts_image`: image name and version of the admin scripts to use 
 
 - `management_api_url`: management api url inside the cluster
 

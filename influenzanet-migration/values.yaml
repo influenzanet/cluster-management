@@ -1,5 +1,5 @@
 # image name of the admin scripts to use, the version is hardcoded in the chart
-admin_scripts_image: "influweb/admin-scripts"
+admin_scripts_image: "influweb/admin-scripts:v1.0.0"
 
 # url of the management api
 management_api_url: "http://management-api-service:3232"

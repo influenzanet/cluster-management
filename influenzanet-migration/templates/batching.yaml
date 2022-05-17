@@ -78,7 +78,7 @@ spec:
             name: "batching-config"
       containers:
       - name: "batching-container"
-        image: {{ .Values.admin_scripts_image }}:v1.0.0
+        image: {{ .Values.admin_scripts_image }}
         command:
           - /bin/bash
           - /config/batching.sh
