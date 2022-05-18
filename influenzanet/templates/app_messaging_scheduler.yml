@@ -80,12 +80,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .serviceName}}
+  name: {{ .serviceName }}
   namespace: {{ $.Values.namespace }}
 spec:
   type: ClusterIP
   selector:
-    app: message-scheduler
+    app: {{ .name }}
   ports:
     - name: grpc
       protocol: TCP

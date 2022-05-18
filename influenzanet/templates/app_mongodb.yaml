@@ -50,7 +50,7 @@ metadata:
   namespace: {{ $.Values.namespace }}
 spec:
   selector:
-    app: mongo
+    app: {{ .name }}
 {{ if .headless }}
   clusterIP: None
 {{ else }}

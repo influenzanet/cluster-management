@@ -46,7 +46,7 @@ metadata:
 spec:
   type: NodePort
   selector:
-    app: management-api
+    app: {{ .name }}
   ports:
     - name: grpc
       protocol: TCP

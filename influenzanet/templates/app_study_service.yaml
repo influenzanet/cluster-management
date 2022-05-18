@@ -90,7 +90,7 @@ metadata:
 spec: 
   type: ClusterIP
   selector:
-    app: study
+    app: {{ .name  }}
   ports:
     - name: grpc
       protocol: TCP
