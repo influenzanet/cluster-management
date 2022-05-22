@@ -9,10 +9,18 @@ metadata:
 {{- end }}
     nginx.ingress.kubernetes.io/server-snippet: |
 
-      location ~ ^/(?!.well-known/acme-challenge/) {
-        if ($http_user_agent != "{{ .Values.allowAgent}}"){
-          return 503;
-        }
+      set $PASS "";
+
+      if ($request_uri ~ ^/(?!.well-known/acme-challenge/)) {
+        set $PASS "N";
+      }
+
+      if ($http_user_agent != "{{ .Values.allowAgent}}"){
+        set $PASS "${PASS}O";
+      }
+
+      if ($PASS = NO) {
+        return 503;
       }
 
       error_page 503 = @errorpage;
