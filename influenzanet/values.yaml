@@ -27,6 +27,9 @@ ingress:
 tlsDomains:
   - example.com
 
+redirectDomains:
+  - subdomain.example.com
+
 participantApiPath: "/api"
 managementApiPath: "/admin"
 

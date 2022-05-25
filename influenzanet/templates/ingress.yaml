@@ -42,5 +42,25 @@ spec:
             path: /.*
             pathType: ImplementationSpecific
 {{ end }}
-
+---
+{{- if .Values.redirectDomains -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-redirect
+  namespace: {{ .Values.namespace }}
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }}
+    nginx.ingress.kubernetes.io/permanent-redirect: https://{{ .Values.domain }}
+spec:
+  tls:
+  - hosts:
+{{ toYaml .Values.tlsDomains | indent 4}}
+    secretName: site-tls-web
+  rules:
+{{- range .Values.redirectDomains }}
+    - host: {{ . }}
+{{- end }}
+{{- end  -}}
 {{- end  -}}
