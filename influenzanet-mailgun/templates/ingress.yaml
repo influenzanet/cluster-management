@@ -3,14 +3,10 @@ kind: Ingress
 metadata:
   name: ingress-mailgun
   namespace: {{ .Values.namespace }}
-  annotations:
-    cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }}
 spec:
   ingressClassName: nginx
   tls:
-  - hosts:
-      - {{ .Values.domain }}
-    secretName: site-tls-web
+  - secretName: {{ .Values.tlsSecretName }}
   rules:
     - host: {{ .Values.domain }}
       http:

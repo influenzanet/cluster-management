@@ -51,13 +51,10 @@ metadata:
   namespace: {{ .Values.namespace }}
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }}
     nginx.ingress.kubernetes.io/permanent-redirect: https://{{ .Values.domain }}
 spec:
   tls:
-  - hosts:
-{{ toYaml .Values.tlsDomains | indent 4}}
-    secretName: site-tls-web
+    - secretName: {{ .Values.tlsSecretName }}
   rules:
 {{- range .Values.redirectDomains }}
     - host: {{ . }}

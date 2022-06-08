@@ -4,9 +4,6 @@ metadata:
   name: ingress-maintenance
   namespace: {{ .Values.namespace }}
   annotations:
-{{- if not (eq .Values.issuerType "none") }}
-    cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }}
-{{- end }}
     nginx.ingress.kubernetes.io/server-snippet: |
 
       set $PASS "";
@@ -32,9 +29,7 @@ metadata:
 spec:
   ingressClassName: nginx
   tls:
-  - hosts:
-    - {{ .Values.domain }}
-    secretName: site-tls-web
+  - secretName: {{ .Values.tlsSecretName }}
   rules:
     - host: {{ .Values.domain }}
       http:
