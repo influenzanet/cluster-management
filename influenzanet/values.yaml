@@ -69,7 +69,7 @@ createStorageClass: true
 
 # Email service SMTP configuration
 ## Regular Email Server
-smtpServers: |
+smtpServers:
   from: "username@email.com"
   sender: username@email.com
   replyTo:
@@ -84,7 +84,7 @@ smtpServers: |
         password: "password" 
 
 ## High Priority email server
-prioSmtpServers: |
+prioSmtpServers:
   from: "username@email.com"
   sender: username@email.com
   replyTo:

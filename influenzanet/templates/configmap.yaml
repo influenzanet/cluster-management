@@ -4,5 +4,7 @@ metadata:
   name: email-server-config
   namespace: {{ .Values.namespace }}
 data:
-  high-prio-smtp-servers.yaml: {{ toPrettyJson .Values.prioSmtpServers }}
-  smtp-servers.yaml: {{ toPrettyJson .Values.smtpServers }}
+  smtp-servers.yaml: |
+{{ (tpl (.Values.prioSmtpServers | toYaml) .) | indent 4 }}
+  high-prio-smtp-servers.yaml: |
+{{ (tpl (.Values.prioSmtpServers | toYaml) .) | indent 4 }}
