@@ -38,7 +38,7 @@ managementApiPath: "/admin"
 issuerType: acme
 
 # Cluster issuer Name
-clusterIssuer : "letsencrypt-prod-site"
+clusterIssuer : "letsencrypt"
 acmeServer: https://acme-v02.api.letsencrypt.org/directory
 acmeEmail: user.name@domain.com
 

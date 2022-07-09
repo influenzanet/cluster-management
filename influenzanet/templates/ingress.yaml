@@ -15,7 +15,7 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-{{ toYaml .Values.tlsDomains | indent 8}}
+{{ toYaml .Values.tlsDomains | indent 8 }}
       secretName: {{ .Values.tlsSecretName }}
   rules:
     - host: {{ .Values.domain }}
