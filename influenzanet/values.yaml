@@ -119,7 +119,7 @@ svcWebParticipant:
     name: web-client
     replicas: 1
     image: influenzanet/participant-webapp:v0.0.1
-    imagePullPolicy: Always
+    imagePullPolicy: IfNotPresent
     containerPort: 3100
     serviceName: web-client-service
 
@@ -127,7 +127,7 @@ svcWebParticipant:
 svcEmailClient:
   name: email-client
   image: influenzanet/email-client-service-image:v0.9.3
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   replicas: 1
   containerPort: 5005
   serviceName: email-client-service
@@ -138,7 +138,7 @@ svcLogging:
   name: logging
   replicas: 1
   image: influenzanet/logging-service-image:v0.2.0
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   containerPort: 5006
   serviceName: logging-service
   dbSecretName: case-mongodb-atlas
@@ -148,7 +148,7 @@ svcLogging:
 svcManagementApi:
   name: management-api
   image: influenzanet/management-api-image:v0.15.1
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   containerPort: 3232      
   corsAllowOrigins: 'https://tofudumplings.com,http://tofudumplings.com'
   debugMode: "false"
@@ -157,7 +157,7 @@ svcManagementApi:
 svcParticipantApi:
   name: participant-api
   image: influenzanet/participant-api-image:v0.15.1
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   containerPort: 3231
   corsAllowOrigins: 'https://tofudumplings.com,http://tofudumplings.com'
   debugMode: "false"
@@ -170,7 +170,7 @@ SvcMessageScheduler:
   name: messaging-scheduler
   replicas: 1
   image: influenzanet/messaging-scheduler-image:v0.9.3
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   containerPort: 5009
   serviceName: messaging-scheduler-service
   dbTimeout: 30
@@ -187,7 +187,7 @@ svcMessaging:
   name: messaging
   replicas: 1
   image: influenzanet/messaging-service-image:v0.9.3
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   containerPort: 5004
   serviceName: messaging-service
   dbTimeout: 30
@@ -198,10 +198,10 @@ svcMongoDb:
   name: mongo
   serviceName: mongo-atlas-service
   replicas: 1
-  # NOTE: if using 'Always' pull policy, do not use 'latest' as image version in
+  # NOTE: if using 'IfNotPresent' pull policy, do not use 'latest' as image version in
   # order to prevent unwanted updates when the pod is recreated
   image: mongo:5.0
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   # Secret used to create the ROOT password, should have 'username' & password entry
   dbSecretName: case-mongodb-atlas
   containerPort: 27017
@@ -224,7 +224,7 @@ svcMongoDb:
 svcStudyService:
   name: study
   image: influenzanet/study-service-image:v0.16.2
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   replicas: 1
   serviceName: study-service
   containerPort: 5003
@@ -239,7 +239,7 @@ svcStudyService:
 svcUserManagement:
   name: user-management
   image: influenzanet/user-management-image:v0.20.4
-  imagePullPolicy: Always
+  imagePullPolicy: IfNotPresent
   replicas: 1
   serviceName: "user-management-service"
   containerPort: 5002
