@@ -16,5 +16,5 @@ spec:
                 name: mailgun-webhook-service
                 port:
                   number: 8080
-            path: {{ .Values.endpoint }}
+            path: {{ tpl .Values.endpoint . }}
             pathType: ImplementationSpecific

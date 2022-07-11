@@ -15,7 +15,9 @@ spec:
   ingressClassName: nginx
   tls:
     - hosts:
-{{ toYaml .Values.tlsDomains | indent 8 }}
+{{- range .Values.tlsDomains }}
+      - {{ tpl . $ }}
+{{- end }}
       secretName: {{ .Values.tlsSecretName }}
   rules:
     - host: {{ .Values.domain }}
@@ -57,7 +59,7 @@ spec:
     - secretName: {{ .Values.tlsSecretName }}
   rules:
 {{- range .Values.redirectDomains }}
-    - host: {{ . }}
+    - host: {{ tpl . $ }}
 {{- end }}
 {{- end  -}}
 {{- end  -}}

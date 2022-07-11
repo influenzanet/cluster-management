@@ -12,7 +12,7 @@ metadata:
         set $PASS "N";
       }
 
-      if ($http_user_agent != "{{ .Values.allowAgent }}"){
+      if ($http_user_agent != {{ tpl .Values.allowAgent . }}){
         set $PASS "${PASS}O";
       }
 

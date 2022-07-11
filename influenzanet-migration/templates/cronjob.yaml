@@ -8,8 +8,8 @@ data:
     management_api_url: {{ .Values.management_api_url | quote }}
     participant_api_url: {{ .Values.participant_api_url | quote }}
     user_credentials:
-      email: {{ .Values.user_credentials.email | quote }}
-      password: {{ .Values.user_credentials.password | quote }}
+      email: {{ tpl .Values.user_credentials.email . | quote }}
+      password: {{ tpl .Values.user_credentials.password . | quote }}
       instanceId: {{ .Values.namespace | quote }}
   migration-settings.yaml: |
     preferredLanguage: {{ .Values.language | quote }}
