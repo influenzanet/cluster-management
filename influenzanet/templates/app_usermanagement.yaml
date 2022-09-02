@@ -91,6 +91,8 @@ spec:
           value: {{ .sendReminderToUnverifiedUserAfter | quote }}
         - name: VERIFICATION_CODE_LIFETIME
           value: {{ .verificationCodeLifetime | quote }}
+        - name: LOG_LEVEL
+          value: {{ .logLevel | quote }} 
         ports:
         - containerPort: {{ .containerPort }}
 ---

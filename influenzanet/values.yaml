@@ -276,3 +276,4 @@ svcUserManagement:
   sendReminderToUnverifiedUserAfter: "1290000"
   # Lifetime in seconds for verification code of a new account. Default is 15 minutes
   verificationCodeLifetime: 900
+  logLevel: info
