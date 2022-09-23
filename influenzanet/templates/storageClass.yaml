@@ -7,5 +7,5 @@ metadata:
 provisioner: pd.csi.storage.gke.io
 reclaimPolicy: Retain
 allowVolumeExpansion: true
-volumeBindingMode: Immediate
+volumeBindingMode: WaitForFirstConsumer
 {{ end }}
