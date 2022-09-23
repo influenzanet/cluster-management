@@ -39,5 +39,7 @@ spec:
                 name: maintenance-service
                 port:
                   number: 3100
-            path: /
+            # NOTE: this could be anything that is not already in use by another ingress
+            # the actual filtering is done in the nginx snippet above
+            path: /maintenance
             pathType: ImplementationSpecific
