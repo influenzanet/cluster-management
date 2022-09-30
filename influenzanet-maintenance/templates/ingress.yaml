@@ -28,8 +28,6 @@ metadata:
       }
 spec:
   ingressClassName: nginx
-  tls:
-  - secretName: {{ .Values.tlsSecretName }}
   rules:
     - host: {{ .Values.domain }}
       http:
