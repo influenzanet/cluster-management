@@ -2,10 +2,10 @@
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
-  name: influenzanet-storage
+  name: {{ .Values.svcMongoDb.storageClass }}
   namespace: {{ .Values.namespace }}
-provisioner: kubernetes.io/gce-pd
+provisioner: pd.csi.storage.gke.io
 reclaimPolicy: Retain
 allowVolumeExpansion: true
-volumeBindingMode: Immediate
+volumeBindingMode: WaitForFirstConsumer
 {{ end }}

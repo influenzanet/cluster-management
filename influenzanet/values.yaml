@@ -217,6 +217,10 @@ svcMongoDb:
   headless: true
   # Name of the pv to create
   pvClaimName: database-pv-claim
+  # Set this field for associating a pre-existing volume to the claim, leaving
+  # an empty string will default to dynamic provisioning and create a random
+  # name for the volume
+  volumeName: ""
   # Storage class name to use for the MongoDb 
   storageClass: influenzanet-storage
   accessModes:

@@ -14,7 +14,7 @@ data:
 
     app.listen(process.env.PORT || 8080);
 
-    app.post('{{ .Values.endpoint }}', function(req, res) {
+    app.post("{{ tpl .Values.endpoint . }}", function(req, res) {
 
       const event = req.body['event-data']
 

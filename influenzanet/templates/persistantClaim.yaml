@@ -7,6 +7,9 @@ metadata:
 spec:
   storageClassName: {{ .Values.svcMongoDb.storageClass }}
   accessModes: {{ .Values.svcMongoDb.accessModes }}
+  {{- if .Values.svcMongoDb.volumeName }}
+  volumeName: {{ .Values.svcMongoDb.volumeName }}
+  {{- end}}
   resources:
     requests:
       storage: {{ .Values.svcMongoDb.storageRequested }}
