@@ -68,6 +68,10 @@ spec:
               key: password
         - name: TOKEN_EXPIRATION_MIN
           value: {{ .tokenExpiration | quote }}
+        - name: INVITATION_TOKEN_LIFETIME
+          value: {{ .tokenInvitationLifetime | quote }}
+        - name: CONTACT_VERIFICATION_TOKEN_LIFETIME
+          value: {{ .tokenContactVerificationLifetime | quote }} 
         - name: JWT_TOKEN_KEY
           valueFrom:
             secretKeyRef:
