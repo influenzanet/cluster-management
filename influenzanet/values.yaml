@@ -279,9 +279,9 @@ svcUserManagement:
   verificationCodeLifetime: 900
 
   # Lifetime of the invitation token, can be integer (as hours) or value + unit (s,m,h) e.g. '10h'. Default 168h (7days)
-  tokenInvitationLifetime: "720h"
+  tokenInvitationLifetime: "168h"
 
   # Lifetime of the contact verification token, integer (as hours) or value+ unit (s,m,h), Default "720h" (30 days)
-  tokenContactVerificationLifetime: "800h"
+  tokenContactVerificationLifetime: "720h"
 
   logLevel: info
