@@ -72,6 +72,8 @@ spec:
           value: {{ .tokenInvitationLifetime | quote }}
         - name: CONTACT_VERIFICATION_TOKEN_LIFETIME
           value: {{ .tokenContactVerificationLifetime | quote }} 
+        - name: WEEKDAY_ASSIGNATION_WEIGHTS
+          value: {{ .weekdayAssignationWeights | quote }}
         - name: JWT_TOKEN_KEY
           valueFrom:
             secretKeyRef:

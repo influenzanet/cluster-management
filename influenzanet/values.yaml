@@ -284,4 +284,9 @@ svcUserManagement:
   # Lifetime of the contact verification token, integer (as hours) or value+ unit (s,m,h), Default "720h" (30 days)
   tokenContactVerificationLifetime: "720h"
 
+  # Weight of each weekday (weight=0 day non assigned)
+  # Values: mon=, tue=, wed=, thu=, fri, sat=, sun=
+  # Default is empty (use uniform for all week days, i.e. weight=1 for each)
+  weekdayAssignationWeights: ""
+
   logLevel: info
