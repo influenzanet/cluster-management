@@ -51,9 +51,6 @@ metadata:
   name: {{ .Values.ingress.name }}-images
   namespace: {{ .Values.namespace }}
   annotations:
-{{- if not (eq .Values.issuerType "none") }}
-    cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }}
-{{- end }}
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
 spec:
@@ -75,9 +72,6 @@ metadata:
   name: {{ .Values.ingress.name }}-api
   namespace: {{ .Values.namespace }}
   annotations:
-{{- if not (eq .Values.issuerType "none") }}
-    cert-manager.io/cluster-issuer: {{ .Values.clusterIssuer }}
-{{- end }}
     nginx.ingress.kubernetes.io/rewrite-target: /$1
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
