@@ -130,6 +130,8 @@ svcWebParticipant:
     imagePullPolicy: IfNotPresent
     containerPort: 3100
     serviceName: web-client-service
+    extraVolumeMounts: []
+    extraVolumes: []
 
 # EMAIL CLIENT #
 svcEmailClient:
