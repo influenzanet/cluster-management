@@ -40,13 +40,13 @@ spec:
                   value: {{ .disableSignupEndpoint | quote }}
                 - name: USE_RECAPTCHA
                   value: "{{ $.Values.useRecaptcha }}"
-                {{ if eq $.Values.useRecaptcha true }}
+                {{- if eq $.Values.useRecaptcha true }}
                 - name: RECAPTCHA_SECRET
                   valueFrom:
                     secretKeyRef:
                       name: "recaptcha-collection"
                       key: recaptchaKey
-                {{ end }}
+                {{- end }}
               ports:
                 - containerPort: {{ .containerPort }}
 ---

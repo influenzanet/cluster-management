@@ -86,7 +86,7 @@ spec:
         - name: VERIFICATION_CODE_LIFETIME
           value: {{ .verificationCodeLifetime | quote }}
         ports:
-        - containerPort: {{ .containerPort }}
+          - containerPort: {{ .containerPort }}
 ---
 apiVersion: v1
 kind: Service
