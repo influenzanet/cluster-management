@@ -1,106 +1,173 @@
-# Default values for influenzanet-2.0.
+# Default values for influenzanet
 # This is a YAML-formatted file.
-# Declare variables to be passed into your templates.
 
-platformName: "Influenzanet"
-contactEmail: "support@localhost"
+##
+# Platform description
+##
 
-namespace: case
+namespace: example
+platformName: "Influenzanet Example"
+contactEmail: "support@example.com"
+
+##
+# External access configuration
+##
+
+ingress:
+  # if false no ingress will be created for external access
+  enabled: true
+  name: "ingress-web"
+
+# Replace this with the main domain name for Influenzanet Application
+domain: example.com
+
+# Additional domains to redirect to the main domain
+redirectDomains:
+  - app.{{ .Values.domain }}
+  - example.org
+
+# API endpoints
+participantApiPath: "/api"
+managementApiPath: "/admin"
+
+##
+# TLS configuration
+##
+
+# Additional domains to be included in the TLS certificate *in addition* to
+# 'domain' and 'redirectDomains'
+tlsDomains:
+  - www.{{ .Values.domain }}
+
+# TLS issuerType 'acme', 'ca'
+issuerType: "acme"
+
+# If issuerType: 'acme'
+clusterIssuer : "letsencrypt"
+acmeServer: https://acme-v02.api.letsencrypt.org/directory
+acmeEmail: admin@example.com
+# Name of the secret used to store the generated certificate
+tlsSecretName: 'site-tls-web'
+
+# If issuerType: 'ca', put here the name of the secret containing the CA
+# certificate and key, leave empty if using 'acme'
+CAIssuerSecretName: ''
+
+##
+# Basic auth and anti-spam protection
+##
 
 basicAuth:
   enabled: false
   username: "user"
   password: "password"
+  excludePaths: []
 
-####
-# Global flags
-####
-
-# Use Google Recaptcha, if true the secret googleRecaptchaKey should be defined too
+# Use Google Recaptcha for protecting the registration dialog from spammers, if
+# true the secret googleRecaptchaKey must also be defined
 useRecaptcha: true
 
-# Replace this with the domain name for Influenzanet Application
-domain: example.com
+##
+# SMTP configuration for outgoing emails
+##
 
-ingress:
-  enabled: true
-  name: ingress-web
-
-# Replace this with a list of domains to be included in the certificate
-tlsDomains:
-  - example.com
-
-redirectDomains:
-  - subdomain.example.com
-
-participantApiPath: "/api"
-managementApiPath: "/admin"
-
-# TLS Certificate Issuer Section
-# issuerType 'acme', 'ca' 
-issuerType: acme
-
-# Cluster issuer Name
-clusterIssuer : "letsencrypt"
-acmeServer: https://acme-v02.api.letsencrypt.org/directory
-acmeEmail: user.name@domain.com
-
-# Name of the secret used to store the generated certificat will be stored
-tlsSecretName: 'site-tls-web'
-
-# In case of issuerType 'ca' put here the name of the secret containing the ca certificate and key, leave empty for acme
-CAIssuerSecretName: 'ca-issuer-secret'
-
-# Secrets Configuration Section
-
-# JSON Web Token secret key (32 bytes random, base64 encoded). 
-jwtKey: ""
-mongoUsername: "admin"
-mongoPassword: "abc123"
-
-# The actual value given by google is expected here
-googleRecaptchaKey: ""
-
-# studyGlobalSecret, used together with a study secretKey to compute a
-# participantID from a profileID, should be a string with high entropy
-studyGlobalSecret: ""
-
-# Email service SMTP configuration
 ## Regular Email Server
 smtpServers:
-  from: "username@email.com"
-  sender: username@email.com
+  from: "Influenzanet Example <no-reply@example.com>"
+  sender: "Influenzanet Example <no-reply@example.com>"
   replyTo:
-    - username@email.com
+    - no-reply@example.com
   servers:
-    - host: smtp.gmail.com
+    - host: smtp.example.com
       port: 465
       connections: 2
       sendTimeout: 5
       auth:
-        user: username@email.com
-        password: "password" 
+        user: postmaster@example.com
+        password: "password"
 
 ## High Priority email server
 prioSmtpServers:
-  from: "username@email.com"
-  sender: username@email.com
+  from: "Influenzanet Example <no-reply@example.com>"
+  sender: "Influenzanet Example <no-reply@example.com>"
   replyTo:
-    - username@email.com
+    - no-reply@example.com
   servers:
-    - host: smtp.gmail.com
+    - host: smtp.example.com
       port: 465
       connections: 2
       sendTimeout: 5
       auth:
-        user: username@email.com
-        password: "password" 
+        user: postmaster@example.com
+        password: "password"
+
+##
+# Platform secrets
+##
+
+jwtKey: "high_entropy_string"
+mongoUsername: "user"
+mongoPassword: "password"
+# The actual secret key value provided by Google is expected here
+googleRecaptchaKey: "google_recaptcha_key"
+# studyGlobalSecret is used together with the secretKey associated to a specific
+# study to compute a participantID from a profileID, should be a string with
+# high entropy
+studyGlobalSecret: "high_entropy_string"
+
+##
+# MongoDB service configuration
+##
+
+svcMongoDb:
+  # if disabled no volume allocation will take place
+  enabled: true
+  name: mongo
+  serviceName: mongo-atlas-service
+  replicas: 1
+  # NOTE: if using 'IfNotPresent' pull policy, do not use 'latest' as image version in
+  # order to prevent unwanted updates when the pod is recreated
+  image: mongo:5.0
+  imagePullPolicy: IfNotPresent
+  containerPort: 27017
+  # If false the service will be assigned to NodePort instead of ClusterIp
+  headless: true
+  # Name of the pv to create
+  pvClaimName: database-pv-claim
+  # Set this field for associating a pre-existing volume to the claim, leaving
+  # an empty string will default to dynamic provisioning and create a new volume
+  # with a random name
+  volumeName: ""
+  # Storage class to use for the associated persistent volume. If equal to
+  # 'influenzanet-storage' a new GKE-specific storage class defined in
+  # templates/storageClass.yaml will be used.
+  storageClass: 'influenzanet-storage'
+  accessModes:
+    - ReadWriteOnce
+  # Size of the requested storage
+  storageRequested: 50Gi
+  # Path to mount in the container to the data directory (can depends on the image used)
+  # For bitnami use /bitnami/mongodb
+  dbDataPath: /data/db
+  envRootUserName: MONGO_INITDB_ROOT_USERNAME
+  envRootPasswordName: MONGO_INITDB_ROOT_PASSWORD
+
+# Point this to your custom instance if you chose not to enable the internal MongoDB service
+dbConnectionStr: "{{ .Values.svcMongoDb.serviceName }}:{{ .Values.svcMongoDb.containerPort }}"
+# Common prefix for database names (use for multitenant db)
+dbNamePrefix: ""
+dbConnectionPrefix: ""
+dbSecretName: "case-mongodb-atlas"
+
+##
+# Influenzanet microservices configuration
+##
 
 # PARTICIPANT WEBAPP
 svcWebParticipant:
     name: web-client
     replicas: 1
-    image: influenzanet/participant-webapp:v0.0.1
+    image: influenzanet/participant-webapp:v1.14.1-0
     imagePullPolicy: IfNotPresent
     containerPort: 3100
     serviceName: web-client-service
@@ -108,13 +175,13 @@ svcWebParticipant:
 # EMAIL CLIENT #
 svcEmailClient:
   name: email-client
-  image: influenzanet/email-client-service-image:v0.9.3
+  image: influenzanet/email-client-service-image:v1.2.0
   imagePullPolicy: IfNotPresent
   replicas: 1
   containerPort: 5005
   serviceName: email-client-service
   configMapName: email-server-config
-  
+
 # LOGGING SERVICE #
 svcLogging:
   name: logging
@@ -127,28 +194,30 @@ svcLogging:
 #  MANAGEMENT API #
 svcManagementApi:
   name: management-api
-  image: influenzanet/management-api-image:v0.15.1
+  image: influenzanet/management-api-image:v1.2.0
   imagePullPolicy: IfNotPresent
   containerPort: 3232      
-  corsAllowOrigins: 'https://tofudumplings.com,http://tofudumplings.com'
+  corsAllowOrigins: 'https://{{ .Values.domain }}'
   debugMode: "false"
   serviceName: management-api-service
 
+# PARTICIPANT API #
 svcParticipantApi:
   name: participant-api
-  image: influenzanet/participant-api-image:v0.15.1
+  image: influenzanet/participant-api-image:v1.2.0
   imagePullPolicy: IfNotPresent
   containerPort: 3231
-  corsAllowOrigins: 'https://tofudumplings.com,http://tofudumplings.com'
+  corsAllowOrigins: 'https://{{ .Values.domain }}'
   debugMode: "false"
   useDeleteEndpoint: true
   disableSignupEndpoint: false
   serviceName: participant-api-service
-  
+
+# MESSAGE SCHEDULER #
 SvcMessageScheduler:
   name: messaging-scheduler
   replicas: 1
-  image: influenzanet/messaging-scheduler-image:v0.9.3
+  image: influenzanet/messaging-scheduler-image:v1.2.0
   imagePullPolicy: IfNotPresent
   containerPort: 5009
   serviceName: messaging-scheduler-service
@@ -165,52 +234,17 @@ SvcMessageScheduler:
 svcMessaging:
   name: messaging
   replicas: 1
-  image: influenzanet/messaging-service-image:v0.9.3
+  image: influenzanet/messaging-service-image:v1.2.0
   imagePullPolicy: IfNotPresent
   containerPort: 5004
   serviceName: messaging-service
   dbTimeout: 30
   dbIdleTimeout: 46
 
-# Point this to your custom instance if you chose not to enable the internal MongoDB service
-# Each of these values can be overridden inside the microservice configuration
-dbConnectionStr: "{{ .Values.svcMongoDb.serviceName }}:{{ .Values.svcMongoDb.containerPort }}"
-# Common prefix for database names (use for multitenant db)
-dbNamePrefix: ""
-dbConnectionPrefix: ""
-dbSecretName: "case-mongodb-atlas"
-
-svcMongoDb:
-  enabled: true
-  name: mongo
-  serviceName: mongo-atlas-service
-  replicas: 1
-  # NOTE: if using 'IfNotPresent' pull policy, do not use 'latest' as image version in
-  # order to prevent unwanted updates when the pod is recreated
-  image: mongo:5.0
-  imagePullPolicy: IfNotPresent
-  containerPort: 27017
-  # If false the service will be assigned to NodePort instead of clusterIp
-  headless: true
-  # Name of the pv to create
-  pvClaimName: database-pv-claim
-  # Set this field for associating a pre-existing volume to the claim, leaving
-  # an empty string will default to dynamic provisioning and create a random
-  # name for the volume
-  volumeName: ""
-  # Storage class name to use for the MongoDb 
-  storageClass: influenzanet-storage
-  accessModes:
-    - ReadWriteOnce
-  # Size of the requested storage
-  storageRequested: 50Gi
-  # Path to mount in the container to the data directory (can depends on the image used)
-  # For bitnami use /bitnami/mongodb
-  dbDataPath: /data/db
-
+# STUDY SERVICE #
 svcStudyService:
   name: study
-  image: influenzanet/study-service-image:v0.16.2
+  image: influenzanet/study-service-image:v1.3.1
   imagePullPolicy: IfNotPresent
   replicas: 1
   serviceName: study-service
@@ -224,14 +258,13 @@ svcStudyService:
 # USER MANAGEMENT SERVICE #
 svcUserManagement:
   name: user-management
-  image: influenzanet/user-management-image:v0.20.4
+  image: influenzanet/user-management-image:v1.1.1
   imagePullPolicy: IfNotPresent
   replicas: 1
   serviceName: "user-management-service"
   containerPort: 5002
   dbTimeout: 30
   dbIdleTimeout: 46
-  
   # JWT Tokens
   # Token expiration time in Minute
   tokenExpiration: 5
