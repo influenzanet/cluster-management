@@ -1,6 +1,0 @@
-mongodbUri: mongo-atlas-service:27017
-
-storageClass: influenzanet-storage
-accessModes:
-  - ReadWriteOnce
-storageRequested: 50Gi
