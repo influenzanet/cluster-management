@@ -149,8 +149,6 @@ svcMongoDb:
   # Path to mount in the container to the data directory (can depends on the image used)
   # For bitnami use /bitnami/mongodb
   dbDataPath: /data/db
-  envRootUserName: MONGO_INITDB_ROOT_USERNAME
-  envRootPasswordName: MONGO_INITDB_ROOT_PASSWORD
 
 # Point this to your custom instance if you chose not to enable the internal MongoDB service
 dbConnectionStr: "{{ .Values.svcMongoDb.serviceName }}:{{ .Values.svcMongoDb.containerPort }}"
