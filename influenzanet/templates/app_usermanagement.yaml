@@ -33,38 +33,32 @@ spec:
         - name: DB_DB_NAME_PREFIX
           value: "{{ $.Values.dbNamePrefix }}"
         - name: GLOBAL_DB_CONNECTION_STR
-          value: mongo-atlas-service:27017
+          value: "{{ (tpl $.Values.dbConnectionStr $) }}"
         - name: GLOBAL_DB_CONNECTION_PREFIX
-          valueFrom:
-            secretKeyRef:
-              name: {{ $.Values.globalDb.dbSecretName }}
-              key: connectionPrefix
+          value: "{{ $.Values.connectionPrefix }}"
         - name: GLOBAL_DB_USERNAME
           valueFrom:
             secretKeyRef:
-              name: {{ $.Values.globalDb.dbSecretName }}
+              name: "{{ $.Values.dbSecretName }}"
               key: username
         - name: GLOBAL_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ $.Values.globalDb.dbSecretName }}
+              name: "{{ $.Values.dbSecretName }}"
               key: password
         - name: USER_DB_CONNECTION_STR
-          value: {{ $.Values.userDB.dbConnexionStr }}
+          value: "{{ default .dbConnectionStr (tpl $.Values.dbConnectionStr $) }}"
         - name: USER_DB_CONNECTION_PREFIX
-          valueFrom:
-            secretKeyRef:
-              name: {{ $.Values.userDB.dbSecretName }}
-              key: connectionPrefix
+          value: "{{ default .dbConnectionPrefix $.Values.dbConnectionPrefix }}"
         - name: USER_DB_USERNAME
           valueFrom:
             secretKeyRef:
-              name: {{ $.Values.userDB.dbSecretName }}
+              name: "{{ default .dbSecretName $.Values.dbSecretName }}"
               key: username
         - name: USER_DB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: {{ $.Values.userDB.dbSecretName }}
+              name: "{{ default .dbSecretName $.Values.dbSecretName }}"
               key: password
         - name: TOKEN_EXPIRATION_MIN
           value: {{ .tokenExpiration | quote }}

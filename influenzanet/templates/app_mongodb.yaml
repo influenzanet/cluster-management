@@ -27,15 +27,15 @@ spec:
             image: {{ .image }}
             imagePullPolicy: {{ .imagePullPolicy | default "Always" }}
             env:
-              - name: {{ .envRootUserName }}
+              - name: MONGO_INITDB_ROOT_USERNAME
                 valueFrom:
                   secretKeyRef:
-                    name: {{ .dbSecretName }}
+                    name: "{{ $.Values.dbSecretName }}"
                     key: username
-              - name: {{ .envRootPasswordName }}
+              - name: MONGO_INITDB_ROOT_PASSWORD
                 valueFrom:
                   secretKeyRef:
-                    name: {{ .dbSecretName }}
+                    name: "{{ $.Values.dbSecretName }}"
                     key: password
             ports:
               - containerPort: {{ .containerPort }}
@@ -51,14 +51,13 @@ metadata:
 spec:
   selector:
     app: {{ .name }}
-{{ if .headless }}
+{{- if .headless }}
   clusterIP: None
-{{ else }}
+{{- else }}
   type: ClusterIP
-{{ end }}
+{{- end }}
   ports:
-      - 
-        name: grpc
+      - name: grpc
         protocol: TCP
         port: {{ .containerPort }}
         targetPort: {{ .containerPort }}

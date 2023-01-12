@@ -33,21 +33,18 @@ spec:
             - name: DB_DB_NAME_PREFIX
               value: "{{ $.Values.dbNamePrefix }}"
             - name: LOG_DB_CONNECTION_STR
-              value: "{{ .dbConnexionStr }}"
+              value: "{{ default .dbConnectionStr (tpl $.Values.dbConnectionStr $) }}"
             - name: LOG_DB_CONNECTION_PREFIX
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .dbSecretName }}
-                  key: connectionPrefix
+              value: "{{ default .dbConnectionPrefix $.Values.dbConnectionPrefix }}"
             - name: LOG_DB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ .dbSecretName }}
+                  name: "{{ default .dbSecretName $.Values.dbSecretName }}"
                   key: username
             - name: LOG_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .dbSecretName }}
+                  name: "{{ default .dbSecretName $.Values.dbSecretName }}"
                   key: password
           ports:
             - containerPort: {{ .containerPort }}

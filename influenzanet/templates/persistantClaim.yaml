@@ -5,7 +5,7 @@ metadata:
   name: {{ .Values.svcMongoDb.pvClaimName }}
   namespace: {{ .Values.namespace }}
 spec:
-  storageClassName: {{ .Values.svcMongoDb.storageClass }}
+  storageClassName: {{ tpl .Values.svcMongoDb.storageClass $ }}
   accessModes: {{ .Values.svcMongoDb.accessModes }}
   {{- if .Values.svcMongoDb.volumeName }}
   volumeName: {{ .Values.svcMongoDb.volumeName }}

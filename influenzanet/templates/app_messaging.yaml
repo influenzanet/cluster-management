@@ -25,38 +25,32 @@ spec:
               - name: MESSAGING_SERVICE_LISTEN_PORT
                 value: {{ .containerPort | quote }}
               - name: GLOBAL_DB_CONNECTION_STR
-                value: {{ $.Values.globalDb.dbConnexionStr }}
+                value: "{{ (tpl $.Values.dbConnectionStr $) }}"
               - name: GLOBAL_DB_CONNECTION_PREFIX
-                valueFrom:
-                  secretKeyRef:
-                    name: {{ $.Values.globalDb.dbSecretName }}
-                    key: connectionPrefix
+                value: "{{ $.Values.connectionPrefix }}"
               - name: GLOBAL_DB_USERNAME
                 valueFrom:
                   secretKeyRef:
-                    name: {{ $.Values.globalDb.dbSecretName }}
+                    name: "{{ $.Values.dbSecretName }}"
                     key: username
               - name: GLOBAL_DB_PASSWORD
                 valueFrom:
                   secretKeyRef:
-                    name: {{ $.Values.globalDb.dbSecretName }}
+                    name: "{{ $.Values.dbSecretName }}"
                     key: password
               - name: MESSAGE_DB_CONNECTION_STR
-                value: {{ $.Values.messageDB.dbConnexionStr }}
+                value: "{{ default .dbConnectionStr (tpl $.Values.dbConnectionStr $) }}"
               - name: MESSAGE_DB_CONNECTION_PREFIX
-                valueFrom:
-                  secretKeyRef:
-                    name: {{ $.Values.messageDB.dbSecretName }}
-                    key: connectionPrefix
+                value: "{{ default .dbConnectionPrefix $.Values.dbConnectionPrefix }}"
               - name: MESSAGE_DB_USERNAME
                 valueFrom:
                   secretKeyRef:
-                    name: {{ $.Values.messageDB.dbSecretName }}
+                    name: "{{ default .dbSecretName $.Values.dbSecretName }}"
                     key: username
               - name: MESSAGE_DB_PASSWORD
                 valueFrom:
                   secretKeyRef:
-                    name: {{ $.Values.messageDB.dbSecretName }}
+                    name: "{{ default .dbSecretName $.Values.dbSecretName }}"
                     key: password
               - name: DB_TIMEOUT
                 value: "{{ .dbTimeout }}"

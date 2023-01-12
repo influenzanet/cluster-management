@@ -33,38 +33,32 @@ spec:
             - name: DB_DB_NAME_PREFIX
               value: "{{ $.Values.dbNamePrefix }}"
             - name: GLOBAL_DB_CONNECTION_STR
-              value: {{ quote $.Values.globalDb.dbConnexionStr }}
+              value: "{{ (tpl $.Values.dbConnectionStr $) }}"
             - name: GLOBAL_DB_CONNECTION_PREFIX
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $.Values.globalDb.dbSecretName }}
-                  key: connectionPrefix
+              value: "{{ $.Values.connectionPrefix }}"
             - name: GLOBAL_DB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ $.Values.globalDb.dbSecretName }}
+                  name: "{{ $.Values.dbSecretName }}"
                   key: username
             - name: GLOBAL_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ $.Values.globalDb.dbSecretName }}
+                  name: "{{ $.Values.dbSecretName }}"
                   key: password
             - name: STUDY_DB_CONNECTION_STR
-              value: {{ quote $.Values.studyDB.dbConnexionStr }}
+              value: "{{ default .dbConnectionStr (tpl $.Values.dbConnectionStr $) }}"
             - name: STUDY_DB_CONNECTION_PREFIX
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $.Values.studyDB.dbSecretName }}
-                  key: connectionPrefix
+              value: "{{ default .dbConnectionPrefix $.Values.dbConnectionPrefix }}"
             - name: STUDY_DB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ $.Values.studyDB.dbSecretName }}
+                  name: "{{ default .dbSecretName $.Values.dbSecretName }}"
                   key: username
             - name: STUDY_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ $.Values.studyDB.dbSecretName }}
+                  name: "{{ default .dbSecretName $.Values.dbSecretName }}"
                   key: password
             - name: STUDY_TIMER_EVENT_FREQUENCY
               value: {{ .timerEventFrequency | quote }}

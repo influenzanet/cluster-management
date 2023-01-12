@@ -16,9 +16,6 @@ basicAuth:
 # Global flags
 ####
 
-# Common prefix for database names (use for multitenant db)
-dbNamePrefix: ''
-
 # Use Google Recaptcha, if true the secret googleRecaptchaKey should be defined too
 useRecaptcha: true
 
@@ -62,7 +59,6 @@ CAIssuerSecretName: 'ca-issuer-secret'
 jwtKey: ""
 mongoUsername: "admin"
 mongoPassword: "abc123"
-mongoConnectionPrefix: ""
 
 # The actual value given by google is expected here
 googleRecaptchaKey: ""
@@ -70,10 +66,6 @@ googleRecaptchaKey: ""
 # studyGlobalSecret, used together with a study secretKey to compute a
 # participantID from a profileID, should be a string with high entropy
 studyGlobalSecret: ""
-
-# Persistant Storage Section
-# Create a dedicated storage class (can be removed if your cluster already provides it)
-createStorageClass: true
 
 # Email service SMTP configuration
 ## Regular Email Server
@@ -106,22 +98,6 @@ prioSmtpServers:
         user: username@email.com
         password: "password" 
 
-globalDb:
-  dbConnexionStr: mongo-atlas-service:27017
-  dbSecretName: case-mongodb-atlas
-
-messageDB:
-  dbConnexionStr: mongo-atlas-service:27017
-  dbSecretName: case-mongodb-atlas
-
-studyDB:
-  dbConnexionStr: mongo-atlas-service:27017
-  dbSecretName: case-mongodb-atlas
-
-userDB:
-  dbConnexionStr: mongo-atlas-service:27017
-  dbSecretName: case-mongodb-atlas
-
 # PARTICIPANT WEBAPP
 svcWebParticipant:
     name: web-client
@@ -149,8 +125,6 @@ svcLogging:
   imagePullPolicy: IfNotPresent
   containerPort: 5006
   serviceName: logging-service
-  dbSecretName: case-mongodb-atlas
-  dbConnexionStr: mongo-atlas-service:27017
 
 #  MANAGEMENT API #
 svcManagementApi:
@@ -201,6 +175,14 @@ svcMessaging:
   dbTimeout: 30
   dbIdleTimeout: 46
 
+# Point this to your custom instance if you chose not to enable the internal MongoDB service
+# Each of these values can be overridden inside the microservice configuration
+dbConnectionStr: "{{ .Values.svcMongoDb.serviceName }}:{{ .Values.svcMongoDb.containerPort }}"
+# Common prefix for database names (use for multitenant db)
+dbNamePrefix: ""
+dbConnectionPrefix: ""
+dbSecretName: "case-mongodb-atlas"
+
 svcMongoDb:
   enabled: true
   name: mongo
@@ -210,8 +192,6 @@ svcMongoDb:
   # order to prevent unwanted updates when the pod is recreated
   image: mongo:5.0
   imagePullPolicy: IfNotPresent
-  # Secret used to create the ROOT password, should have 'username' & password entry
-  dbSecretName: case-mongodb-atlas
   containerPort: 27017
   # If false the service will be assigned to NodePort instead of clusterIp
   headless: true
@@ -230,8 +210,6 @@ svcMongoDb:
   # Path to mount in the container to the data directory (can depends on the image used)
   # For bitnami use /bitnami/mongodb
   dbDataPath: /data/db
-  envRootUserName: MONGO_INITDB_ROOT_USERNAME
-  envRootPasswordName: MONGO_INITDB_ROOT_PASSWORD
 
 svcStudyService:
   name: study
