@@ -1,2 +1,2 @@
-image: [dockerhub-repo]/mailgun-webhook
-endpoint: [endpoint-url-path]
+image: "[dockerhub-repo]/mailgun-webhook"
+endpoint: "[endpoint-url-path]"
