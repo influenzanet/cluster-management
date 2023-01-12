@@ -25,7 +25,7 @@ spec:
             - name: MANAGEMENT_API_GATEWAY_LISTEN_PORT
               value: "{{ .containerPort }}"
             - name: CORS_ALLOW_ORIGINS
-              value: "{{ .corsAllowOrigins }}"
+              value: "{{ tpl .corsAllowOrigins $ }}"
             - name: DEBUG_MODE
               value: "{{ .debugMode }}"
             - name: ADDR_USER_MANAGEMENT_SERVICE
