@@ -145,7 +145,6 @@ svcParticipantApi:
   debugMode: "false"
   useDeleteEndpoint: true
   disableSignupEndpoint: false
-  recaptchaSecretName: recaptcha-collection
   serviceName: participant-api-service
   
 SvcMessageScheduler:
@@ -223,7 +222,6 @@ svcStudyService:
   timerEventFrequency: 86400
   timerEventCheckIntervalMin: 3600
   timerEventCheckIntervalVar: 900
-  globalSecretName: study-global-secret
 
 # USER MANAGEMENT SERVICE #
 svcUserManagement:
@@ -239,9 +237,6 @@ svcUserManagement:
   # JWT Tokens
   # Token expiration time in Minute
   tokenExpiration: 5
-  
-  # Name of the secret containing the jwt secret key
-  jwtSecretName: jwt-collection
   # Maximum number of new created accounts, during the signupRateLimitWindow (5 minutes)
   newUserRateLimit: 100
   # Delay (seconds) after which to cleanup user account when it has not been verified

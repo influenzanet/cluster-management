@@ -65,7 +65,7 @@ spec:
         - name: JWT_TOKEN_KEY
           valueFrom:
             secretKeyRef:
-              name: {{ .jwtSecretName }}
+              name: "jwt-collection"
               key: jwt-key
         - name: ARGON2_MEMORY
           value: "65536"
