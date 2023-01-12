@@ -21,7 +21,7 @@ spec:
   tls:
     - hosts:
 {{- range concat ( list .Values.domain ) .Values.redirectDomains (.Values.tlsDomains | default ( list ) )}}
-        - {{ tpl . $ }}
+      - {{ tpl . $ }}
 {{- end }}
       secretName: {{ .Values.tlsSecretName }}
   rules:
