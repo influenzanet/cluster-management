@@ -1,0 +1,113 @@
+{{- with .Values.svcUserManagement }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ .name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .name }}
+    spec:
+      containers:
+      - name: {{ .name }}
+        image: {{ .image }}
+        imagePullPolicy: {{ .imagePullPolicy | default "Always" }}
+        env:
+        - name: USER_MANAGEMENT_LISTEN_PORT
+          value: "{{ .containerPort }}"
+        - name: DB_TIMEOUT
+          value: "{{ .dbTimeout }}"
+        - name: DB_IDLE_CONN_TIMEOUT
+          value: "{{ .dbIdleTimeout }}"
+        - name: DB_MAX_POOL_SIZE
+          value: "8"
+        - name: DB_DB_NAME_PREFIX
+          value: "{{ $.Values.dbNamePrefix }}"
+        - name: GLOBAL_DB_CONNECTION_STR
+          value: "{{ (tpl $.Values.dbConnectionStr $) }}"
+        - name: GLOBAL_DB_CONNECTION_PREFIX
+          value: "{{ $.Values.connectionPrefix }}"
+        - name: GLOBAL_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: "{{ $.Values.dbSecretName }}"
+              key: username
+        - name: GLOBAL_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{ $.Values.dbSecretName }}"
+              key: password
+        - name: USER_DB_CONNECTION_STR
+          value: "{{ default .dbConnectionStr (tpl $.Values.dbConnectionStr $) }}"
+        - name: USER_DB_CONNECTION_PREFIX
+          value: "{{ default .dbConnectionPrefix $.Values.dbConnectionPrefix }}"
+        - name: USER_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: "{{ default .dbSecretName $.Values.dbSecretName }}"
+              key: username
+        - name: USER_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: "{{ default .dbSecretName $.Values.dbSecretName }}"
+              key: password
+        - name: TOKEN_EXPIRATION_MIN
+          value: {{ .tokenExpiration | quote }}
+        - name: INVITATION_TOKEN_LIFETIME
+          value: {{ .tokenInvitationLifetime | quote }}
+        - name: CONTACT_VERIFICATION_TOKEN_LIFETIME
+          value: {{ .tokenContactVerificationLifetime | quote }}
+        - name: WEEKDAY_ASSIGNATION_WEIGHTS
+          value: {{ .weekdayAssignationWeights | quote }}
+        - name: JWT_TOKEN_KEY
+          valueFrom:
+            secretKeyRef:
+              name: "jwt-collection"
+              key: jwt-key
+        - name: ARGON2_MEMORY
+          value: "65536"
+        - name: ARGON2_ITERATIONS
+          value: "4"
+        - name: ARGON2_PARALLELISM
+          value: "2"
+        - name: ADDR_MESSAGING_SERVICE
+          value: "{{ template "ref.MessagingService" $ }}"
+        - name: ADDR_LOGGING_SERVICE
+          value: "{{ template "ref.loggingService" $ }}"
+        - name: NEW_USER_RATE_LIMIT
+          value: {{ .newUserRateLimit | quote }}
+        - name: CLEAN_UP_UNVERIFIED_USERS_AFTER
+          value: {{ .cleanupUnverifiedUsersAfter | quote }}
+        - name: SEND_REMINDER_TO_UNVERIFIED_USERS_AFTER
+          value: {{ .sendReminderToUnverifiedUserAfter | quote }}
+        - name: VERIFICATION_CODE_LIFETIME
+          value: {{ .verificationCodeLifetime | quote }}
+        - name: LOG_LEVEL
+          value: {{ .logLevel | quote }}
+        ports:
+          - containerPort: {{ .containerPort }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .serviceName }}
+  namespace: {{ $.Values.namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .name }}
+  ports:
+    - name: grpc
+      protocol: TCP
+      port: {{ .containerPort }}
+      targetPort: {{ .containerPort }}
+{{- end }}

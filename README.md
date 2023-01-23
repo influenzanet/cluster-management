@@ -1,73 +1,86 @@
+# Deploy influenzanet on a Kubernetes cluster
 
-# Running a kubernetes deployment
-
-This guide will walk you through creating a Kubernetes deployment for the Influenzanet platform. It will walk you through creating individual images for each of the repositories and deploying them on to a running Kubernetes cluster.
+Influenzanet is a cloud-agnostic microservices platform. This guide will walk you through creating a Kubernetes deployment for the Influenzanet services, with an optional focus on the [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine?hl=it) cloud solution.
 
 ## Dependencies
 
-1. Docker images for each service must be built and hosted at your Dockerhub repository. See [influenzanet-setup-guide](https://github.com/influenzanet/influenzanet-setup-guide) for instructions on setting this up.
+1. Docker images for each Influenanet service must be built and hosted at your Dockerhub repository
+   (see [influenzanet-setup-guide](https://github.com/influenzanet/influenzanet-setup-guide) for instructions on setting this up)
 
-2. A cluster with Kubernetes installed.
+2. Kubernetes orchestrator running on a cluster
 
-## Creating a deployment of the docker hub images on a Kubernetes Cluster
+5. A local clone of this repository
 
-### Dependencies
+6. [Helm](https://helm.sh/) package manager installed locally
 
-1. Kubernetes service running on a cluster
+## Deployment configuration
 
-2. Ingress is enabled on the cluster.
+The Influenzanet Kubernetes deployment is managed using Helm charts. Before you can proceed with the deploy, you must customize the main chart values defined in the [influenzanet/values.yaml](./influenzanet/values.yaml) file.
 
-3. A suitable domain name is present for the server.
+Instead of modifying the main chart values directly, it's also possible to create additional `yaml` files in order to add/override values in the [influenzanet/values.yaml](./influenzanet/values.yaml). These additional files are to be passed to the `helm install` command using the `-f` flag. If one of the files defines secrets, it's advised not to track it and to store it in a secure location. Following this approach, we could define one `yaml` file for the common configuration parts and one or several others for the production/development environments and yet one another file storing the secrets.
 
-4. A clone of this repository
+Inside the `values.yaml` file you will find the following configuration values (see [influenzanet/values.yaml](./influenzanet/values.yaml) for a concrete example):
 
-   ```sh
-   git clone https://github.com/influenzanet/cluster-management.git
-   ```
+### Global variables
 
-### Set up
+1. platform description
 
-Before proceeding, configure the `influenzanet-2.0/values.yaml` file to reflect the details of your deployment. In the `values.yaml` file you will find the following configuration values:
+    - `namespace`: the namespace under which each Kubernets component of Influenzanet will be registered
+    - `platformName`: the official name of the platform being deployed
+    - `contactEmail`: principal email for contact / support
 
-1. namespace, domain and back-end path configurations
+2. external access configuration
 
-    - `namespace`: the namespace under which each Kubernets component of Influenzanet will be registered, eg: `italy`
-    - `domain`: the domain name hosting the platform, eg: `influweb.org`
-    - `participantApiPath`: the path under which the participant API are served, eg: `/api`
-    - `managementApiPath`: the path under which the management API are served, eg: `/admin`
+    - `ingress`:
+      - `enabled`: `true`, if `false` no external access to the cluster will be set up
+      - `name`: a name for the ingress
 
-2. TLS certificate configurations
+    - `domain`: the base domain name hosting the platform
+    - `redirectDomains`: array of domains to be redirected to the base domain
 
-    - `acmeServer`:  URL for the ACME server issuing TLS certificates, eg: `https://acme-v02.api.letsencrypt.org/directory`
+    - `participantApiPath`: the path under which the participant API will be served, eg: `/api`
+    - `managementApiPath`: the path under which the management API will be served, eg: `/admin`
 
-    - `clusterIssuer`: name assigned to the ACME server, eg: `letsencrypt`
+4. TLS configuration
 
-    - `connectedEmail`: email associated to the ACME server, will receive maintenance communication from the acme server.
+    - `tlsDomains`: array of additional domains to be included in the TLS certificate, in addition to `domain` and `redirectDomains` 
 
-3. Secrets: JWT, Mongo credentials, recaptcha key
+    The `issuerType` variable is used to switch between different TLS configurations.
 
-    - `jwtKey`: base64 encoded key used for generating user authentication tokens, see [Generating a JWT key ](#generating-a-jwt-key ) for instructions on how to generate a key
+    Using an ACME service:
 
-    - `mongoUsername`: used to setup the mongo admin account
+    - `issuerType`: `acme`
 
-    - `mongoPassword`: password associated to the mongo admin account
+    - `acmeServer`:  URL for the ACME server issuing TLS certificates
 
-    - `googleRecaptchaKey`: secret key associated to a Google recaptcha account, see [Generating a recaptcha key](#generating-a-recaptcha-key) for instructions on how to obtain a key
+    - `clusterIssuer`: name assigned to this ACME server
 
-4. Persistent volume configurations (for mongo)
+    - `acmeEmail`: email associated to this ACME server, will receive maintenance communication
 
-    Detailed information on these configuration values can be found in Kubernetes' documentation on [Persistent Volumes]( https://kubernetes.io/docs/concepts/storage/persistent-volumes/).
+    - `tlsSecretName`: name for the generated secret storing the TLS certificate
 
-    - `storageClass`: the storage class used by Kubernetes when requesting storage for the mongo database, eg: `standard`
+    Using a local CA:
 
-    - `accessModes`: array of access modes for the requested storage, eg:
-        - `- ReadWriteOnce`
+    - `issuerType`: `ca`
+    - `CAIssuerSecretName`: name of the kubernetes secret containing the CA private key and certificate.
 
-    - `storageRequested`: size allocated for the storage, eg: `50Gi`
+    Disable TLS entirely:
 
-6. SMTP configurations for Email sending
+    - `issuerType`: `none` won't create any certificate issuer and no local CA 
 
-    Specify default (`smtpServers`) and high priority (`smtpServers`) SMTP servers, for both entries you must specify:
+5. basic authentication and anti-spam protection
+
+    - `basicAuth`:
+      - `enabled`: `true` / `false`
+      - `username`: the username to be used 
+      - `password`: the password to be required
+      - `excludePaths`: array of paths to exclude
+
+    - `useRecaptcha`: if `true`, use Google Recaptcha for protecting the signup process, disables Google Recaptcha if `false`
+
+5. SMTP configuration for outgoing emails
+
+    Specify default (`smtpServers`) and high priority (`prioSmtpServers`) SMTP servers, for both entries you must specify:
 
     - `from`: what users see as the from address when receiving Influenzanet mails.
     - `sender`: email address of the sender (from can be a name as well)
@@ -75,23 +88,104 @@ Before proceeding, configure the `influenzanet-2.0/values.yaml` file to reflect 
     - `servers`: array of SMTP servers specifying:
         - `host`: SMTP host
         - `port`: SMTP port
+        - `connections`: number of concurrent connections
+        - `sendTimeout`: send timeout in seconds
         - `auth`: contains the username and password credentials for the mailing service.
 
-7. Microservice specific sections, containing configurations of the Kubernetes [deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/) and [service](https://kubernetes.io/docs/concepts/services-networking/service/) for each of the microservices. This includes docker image paths for each microservice, environment variables, port configurations and persistent volume attachments if needed. The most important value you need to change for each microservice is the location of the Dockerhub image:
+1. platform secrets: JWT key, MongoDB credentials, recaptcha key
 
-    ```yaml
-    participantWebapp:
-      deployment:
-        [...]
-        spec:
-          [...]
-          template:
-            spec:
-              containers:
-              - name: [container_name]
-                image: [dockerhub_image]
-              [...]
+    - `jwtKey`: base64 encoded key used for generating user authentication tokens, see [Generating a JWT key](#generating-a-jwt-key) for instructions on how to generate a key
+
+    - `mongoUsername`: used to setup the mongo admin account
+
+    - `mongoPassword`: password associated to the mongo admin account
+
+    - `googleRecaptchaKey`: secret key associated to a Google recaptcha account, see [Generating a recaptcha key](#generating-a-recaptcha-key) for instructions on how to obtain a key
+
+    - `studyGlobalSecret`: global secret used by [study-service](https://github.com/influenzanet/study-service)
+
+### Services confguration
+
+1. MongoDB
+
+    Optionally configure a cluster-local MongoDB instance to be used by the Influenzanet microservices or leverage on an external MongoDB provider.
+
+    - `svcMongoDb`:
+      - `enabled`: `true`, if `false` no MongoDB service will be created
+      - `image`: Docker image to use, eg: `mongo:5.0`
+      - `serviceName`: name used when referring to this service, eg: `mongo-service`
+      - `containerPort`: port on which the service will listen for incoming connections, eg: `27017`
+      - `storageRequested`: storage to be allocated for the db, eg: `50Gi`
+      - `storageClass`: storage class to use when provisioning the persistent volume, if equal to `influenzanet-storage`, a custom storage class will be created and used, defined in [storageClass.yaml](./influenzanet/templates/storageClass.yaml). This is a custom storage class using Google CSI driver and a default `retain` policy. If you plan to use a default storage class or another one from your cloud provider, set this value accordingly.
+
+    MongoDB connection and database configuration:
+
+    - `dbConnectionStr`: point this to the internal MongoDB service, eg: `mongo-service:27017` or to an external MongoDB provider
+    - `dbConnectionPrefix`: used for adding a suffix like `+srv` to the standard `mongodb` prefix 
+    - `dbNamePrefix`: prefix to use for the databases created by the microservices (useful for multi tenant database scenarios)
+    - `dbSecretName`: name of the kubernetes secret storing the MongoDB credentials defined earlier
+
+6. Influenzanet microservices
+
+    Microservice-specific sections containing configurations variables for each of the microservices. Each section includes docker image paths for the microservice, environment variables values to be passed to the backing pod, port configurations and MongoDB connection overrides (if needed).
+
+    Each microservice has its own entry:
+
+    - `svcManagementApi`
+    - `svcParticipantApi`
+    - `svcUserManagement`
+    - `svcStudyService`
+    - `svcMessaging`
+    - `SvcMessageScheduler`
+    - `svcEmailClient`
+    - `svcLogging`
+
+    Each entry provides a set of parameters to configure that service. The most important common parameters are:
+
+    - `image`: name of the docker image to use
+    - `replicas`: number of replicas to start for the service
+    - `dbConnectionStr`: override for the corresponding global variable 
+    - `dbConnectionPrefix`: override for the corresponding global variable 
+    - `dbNamePrefix`: override for the corresponding global variable 
+    - `dbSecretName`: override for the corresponding global variable 
+
+    For the configuration parameters specific to each service (passed to the pods as environment variables), refer to the documentation inside the service repository among the [influenzanet repositories](https://githu.com/influenzanet).
+
+## Deploy Instructions
+
+Once your configuration is in place:
+
+1. Point `kubectl` to the appropriate context
+
+1. Run the script `install_deps.sh` the first time you set up the system.
+
+3. To install/uninstall the base Influenzanet chart run:
+
+    ``` sh
+    helm install influenzanet ./influenzanet
+    helm uninstall influenzanet
     ```
+
+3. To uninstall the Influenzanet dependencies run `uninstall_deps.sh`
+
+## Appendix
+
+### Additional charts
+
+Additional `helm` charts are available for several plug-in functionalities:
+
+- [influenzanet-mailgun](./influenzanet-mailgun): chart for setting up mailgun [webhooks](https://www.mailgun.com/guides/your-guide-to-webhooks/)
+- [influenzanet-maintenance](./influenzanet-maintenance): chart for enabling maintenance mode on the deployed Influenzanet platform
+
+Each of the above charts depends on the base `influenzanet` chart and depends on the `values.yaml` contained therein, eg:
+
+``` bash
+helm install influenzanet-backups influenzanet-backups/ -f influenzanet/values.yaml
+```
+
+For further details see the `README.md` included in each subchart.
+
+### Additional notes
 
 #### Generating a JWT key
 
@@ -100,13 +194,6 @@ The script used to generate a JWT key is hosted in the [user-management-service]
 ``` sh
 go run main.go
 ```
-
-copy the generated key and encode it in base64 format:
-
-``` sh
-echo -ne [jwt_key] | base64
-```
-
 put this value into to the `jwtKey` field.
 
 #### Generating a recaptcha key
@@ -121,85 +208,31 @@ To generate a Google recaptcha key pair follow these steps:
 
 - select reCAPTCHA v2 and an invisible recaptcha badge in the options
 
-- add the domain , ie: influweb.org
+- add the domain , ie: example.com
 
 - click submit, this should generate two keys, a public key and  a secret key.
 
 - the public key is the one to be used it in the REACT_APP_RECAPTCHA_SITEKEY field in your [participant-webapp](https://github.com/influenzanet/participant-webapp) configuration file.
 
-- the secret key is the one we need but must be base64 encoded before being put in `values.yml`:
+- use the private key value in the `googleRecaptchaKey` value.
 
-    ```sh
-    echo -ne [secret_key_here] | base64
-    ```
+### Compatible Influenzanet services versions
 
-- use the encoded value in the `googleRecaptchaKey` field.
+This chart has been tested against the following versions of the influenzanet services:
 
-### Deployment Steps
+| Service                 | Repository / Changelog        | Version  |
+| ------------------------| ------------------------------|----------|
+| participant-api         | [api-gateway][ag]             |  v1.2.0  |
+| management-api          | [api-gateway][ag]             |  v1.2.0  |
+| study-service           | [study-service][ss]           |  v1.3.1  |
+| user-management-service | [user-management-service][us] |  v1.1.1  |
+| email-client-service    | [messaging-service][ms]       |  v1.2.0  |
+| message-scheduler       | [messaging-service][ms]       |  v1.2.0  |
+| messaging-service       | [messaging-service][ms]       |  v1.2.0  |
+| logging-service         | [logging-service][ls]         |  v0.2.0  |
 
-Once the repository has been checked out into the server and your configuration is in place:
-
-1. Run the deployment script `install_start.sh` for the first time you set up the system.
-
-2. To stop and clean up the Influenzanet services from the cluster run `stop.sh`
-
-3. To reinstall the Influenzanet services platform after a clean-up, only run `start.sh` (prevents unnecessary re-installation of nginx ingress & certificate manager)
-
-### Troubleshooting
-
-1. Verify that the NGINX Ingress controller is running
-
-  ```
-  kubectl get pods -n kube-system
-  ```
-
-2. Check the status of the deployments by running the following commands:
-
-  ```
-  kubectl get deployments,services,pods --namespace=[influenzanet_namespace]
-  ```
-
-3. On GKE sometimes webhook creation might fail for nginx admission, to get past this error run the following:
-
-  ```
-  kubectl delete -A ValidatingWebhookConfiguration ingress-nginx-admission
-  ```
-
-4. Lets encrypt (which is used for certificate creation) has a duplicate certificate creation limit of 5 per week.  Check logs of the created certificate by runnning
-
-  ```
-  kubectl describe certificate <cert-name> -n [influenzanet_namespace]
-  ```
-
-6. In case of errors in mail sending, you might have to edit the nginx ingress controller deployment and add the following ports
-
-  ```
-        - containerPort: 465
-          name: smtpssl
-          protocol: TCP
-        - containerPort: 587
-          name: smtpauth
-          protocol: TCP
-  ```
-
-  and to the nginx controller service the following:
-
-  ```
-    - name: smtp
-      port: 587
-      protocol: TCP
-      targetPort: 587
-    - name: smtpssl
-      port: 465
-      protocol: TCP
-      targetPort: 465
-  ```
-
-7. In case the script `start.sh` or `install_start.sh` fails with an error: _"Failed to connect to Kubernetes cluster"_, ensure that you run the following in the google connect console.
-
-  ```
-  gcloud container clusters get-credentials influweb-italy-cluster --zone europe-west1-d --project infuweb-italy
-  ```
-
-  This will allow you to set the credentials to gain access to run the script.
-  If this fails too, then try executing the instructions in the `install_start.sh` script manually in the terminal.
+[ag]: https://github.com/influenzanet/api-gateway/blob/master/CHANGELOG.md
+[ss]: https://github.com/influenzanet/study-service/blob/master/CHANGELOG.md
+[us]: https://github.com/influenzanet/user-management-service/blob/master/CHANGELOG.md
+[ms]: https://github.com/influenzanet/messaging-service/blob/master/CHANGELOG.md
+[ls]: https://github.com/influenzanet/logging-service

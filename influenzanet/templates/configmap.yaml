@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: email-server-config
+  namespace: {{ .Values.namespace }}
+data:
+  smtp-servers.yaml: |
+{{ (tpl (.Values.smtpServers | toYaml) .) | indent 4 }}
+  high-prio-smtp-servers.yaml: |
+{{ (tpl (.Values.prioSmtpServers | toYaml) .) | indent 4 }}

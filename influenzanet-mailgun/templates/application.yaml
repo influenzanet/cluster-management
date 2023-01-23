@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mailgun-webhook
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: mailgun-webhook
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mailgun-webhook
+  template:
+    metadata:
+      labels:
+        app: mailgun-webhook
+    spec:
+      volumes:
+        - name: mailgun-volume
+          configMap:
+            name: mailgun-config
+      containers:
+      - name: mailgun-webhook
+        imagePullPolicy: IfNotPresent
+        image: {{ .Values.image }}
+        workingDir: /app
+        command: [ "node", "webhook/server.js"]
+        volumeMounts:
+          - mountPath: "/app/webhook"
+            name: mailgun-volume
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mailgun-webhook-service
+  namespace: {{ $.Values.namespace }}
+spec:
+  type: NodePort
+  selector:
+    app: mailgun-webhook
+  ports:
+  - port: 8080
+    targetPort: 8080

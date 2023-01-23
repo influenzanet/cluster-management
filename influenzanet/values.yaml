@@ -1,0 +1,294 @@
+# Default values for influenzanet
+# This is a YAML-formatted file.
+
+##
+# Platform description
+##
+
+namespace: example
+platformName: "Influenzanet Example"
+contactEmail: "support@example.com"
+
+##
+# External access configuration
+##
+
+ingress:
+  # if false no ingress will be created for external access
+  enabled: true
+  name: "ingress-web"
+
+# Replace this with the main domain name for Influenzanet Application
+domain: example.com
+
+# Additional domains to redirect to the main domain
+redirectDomains:
+  - app.{{ .Values.domain }}
+  - example.org
+
+# API endpoints
+participantApiPath: "/api"
+managementApiPath: "/admin"
+
+##
+# TLS configuration
+##
+
+# Additional domains to be included in the TLS certificate *in addition* to
+# 'domain' and 'redirectDomains'
+tlsDomains:
+  - www.{{ .Values.domain }}
+
+# TLS issuerType 'acme', 'ca'
+issuerType: "acme"
+
+# If issuerType: 'acme'
+clusterIssuer : "letsencrypt"
+acmeServer: https://acme-v02.api.letsencrypt.org/directory
+acmeEmail: admin@example.com
+# Name of the secret used to store the generated certificate
+tlsSecretName: 'site-tls-web'
+
+# If issuerType: 'ca', put here the name of the secret containing the CA
+# certificate and key, leave empty if using 'acme'
+CAIssuerSecretName: ''
+
+##
+# Basic auth and anti-spam protection
+##
+
+basicAuth:
+  enabled: false
+  username: "user"
+  password: "password"
+  excludePaths: []
+
+# Use Google Recaptcha for protecting the registration dialog from spammers, if
+# true the secret googleRecaptchaKey must also be defined
+useRecaptcha: true
+
+##
+# SMTP configuration for outgoing emails
+##
+
+## Regular Email Server
+smtpServers:
+  from: "Influenzanet Example <no-reply@example.com>"
+  sender: "Influenzanet Example <no-reply@example.com>"
+  replyTo:
+    - no-reply@example.com
+  servers:
+    - host: smtp.example.com
+      port: 465
+      connections: 2
+      sendTimeout: 5
+      auth:
+        user: postmaster@example.com
+        password: "password"
+
+## High Priority email server
+prioSmtpServers:
+  from: "Influenzanet Example <no-reply@example.com>"
+  sender: "Influenzanet Example <no-reply@example.com>"
+  replyTo:
+    - no-reply@example.com
+  servers:
+    - host: smtp.example.com
+      port: 465
+      connections: 2
+      sendTimeout: 5
+      auth:
+        user: postmaster@example.com
+        password: "password"
+
+##
+# Platform secrets
+##
+
+jwtKey: "high_entropy_string"
+mongoUsername: "user"
+mongoPassword: "password"
+# The actual secret key value provided by Google is expected here
+googleRecaptchaKey: "google_recaptcha_key"
+# studyGlobalSecret is used together with the secretKey associated to a specific
+# study to compute a participantID from a profileID, should be a string with
+# high entropy
+studyGlobalSecret: "high_entropy_string"
+
+##
+# MongoDB service configuration
+##
+
+svcMongoDb:
+  # if disabled no volume allocation will take place
+  enabled: true
+  name: mongo
+  serviceName: mongo-atlas-service
+  replicas: 1
+  # NOTE: if using 'IfNotPresent' pull policy, do not use 'latest' as image version in
+  # order to prevent unwanted updates when the pod is recreated
+  image: mongo:5.0
+  imagePullPolicy: IfNotPresent
+  containerPort: 27017
+  # If false the service will be assigned to NodePort instead of ClusterIp
+  headless: true
+  # Name of the pv to create
+  pvClaimName: database-pv-claim
+  # Set this field for associating a pre-existing volume to the claim, leaving
+  # an empty string will default to dynamic provisioning and create a new volume
+  # with a random name
+  volumeName: ""
+  # Storage class to use for the associated persistent volume. If equal to
+  # 'influenzanet-storage' a new GKE-specific storage class defined in
+  # templates/storageClass.yaml will be used.
+  storageClass: 'influenzanet-storage'
+  accessModes:
+    - ReadWriteOnce
+  # Size of the requested storage
+  storageRequested: 50Gi
+  # Path to mount in the container to the data directory (can depends on the image used)
+  # For bitnami use /bitnami/mongodb
+  dbDataPath: /data/db
+
+# Point this to your custom instance if you chose not to enable the internal MongoDB service
+dbConnectionStr: "{{ .Values.svcMongoDb.serviceName }}:{{ .Values.svcMongoDb.containerPort }}"
+# Common prefix for database names (use for multitenant db)
+dbNamePrefix: ""
+dbConnectionPrefix: ""
+dbSecretName: "case-mongodb-atlas"
+
+##
+# Influenzanet microservices configuration
+##
+
+# PARTICIPANT WEBAPP
+svcWebParticipant:
+    name: web-client
+    replicas: 1
+    image: influenzanet/participant-webapp:v1.14.1-0
+    imagePullPolicy: IfNotPresent
+    containerPort: 3100
+    serviceName: web-client-service
+    # use these for attaching extra volumes to the pods
+    extraVolumeMounts: []
+    extraVolumes: []
+
+# EMAIL CLIENT #
+svcEmailClient:
+  name: email-client
+  image: influenzanet/email-client-service-image:v1.2.0
+  imagePullPolicy: IfNotPresent
+  replicas: 1
+  containerPort: 5005
+  serviceName: email-client-service
+  configMapName: email-server-config
+
+# LOGGING SERVICE #
+svcLogging:
+  name: logging
+  replicas: 1
+  image: influenzanet/logging-service-image:v0.2.0
+  imagePullPolicy: IfNotPresent
+  containerPort: 5006
+  serviceName: logging-service
+
+#  MANAGEMENT API #
+svcManagementApi:
+  name: management-api
+  image: influenzanet/management-api-image:v1.2.0
+  imagePullPolicy: IfNotPresent
+  containerPort: 3232      
+  corsAllowOrigins: 'https://{{ .Values.domain }}'
+  debugMode: "false"
+  serviceName: management-api-service
+
+# PARTICIPANT API #
+svcParticipantApi:
+  name: participant-api
+  image: influenzanet/participant-api-image:v1.2.0
+  imagePullPolicy: IfNotPresent
+  containerPort: 3231
+  corsAllowOrigins: 'https://{{ .Values.domain }}'
+  debugMode: "false"
+  useDeleteEndpoint: true
+  disableSignupEndpoint: false
+  serviceName: participant-api-service
+
+# MESSAGE SCHEDULER #
+SvcMessageScheduler:
+  name: messaging-scheduler
+  replicas: 1
+  image: influenzanet/messaging-scheduler-image:v1.2.0
+  imagePullPolicy: IfNotPresent
+  containerPort: 5009
+  serviceName: messaging-scheduler-service
+  dbTimeout: 30
+  dbIdleTimeout: 46
+  # Batch Sending Interval for High Priority (seconds)
+  intervalHighPrio: 45
+  # Batch Sending interval for Low priority messages (seconds)
+  intervalLowPrio: 1800
+  # Batch Sending interval for Auto messages (seconds)
+  intervalAutoMessage: 120
+
+# MESSAGING SERVICE #  
+svcMessaging:
+  name: messaging
+  replicas: 1
+  image: influenzanet/messaging-service-image:v1.2.0
+  imagePullPolicy: IfNotPresent
+  containerPort: 5004
+  serviceName: messaging-service
+  dbTimeout: 30
+  dbIdleTimeout: 46
+
+# STUDY SERVICE #
+svcStudyService:
+  name: study
+  image: influenzanet/study-service-image:v1.3.1
+  imagePullPolicy: IfNotPresent
+  replicas: 1
+  serviceName: study-service
+  containerPort: 5003
+  dbTimeout: 30
+  dbIdleTimeout: 46
+  timerEventFrequency: 86400
+  timerEventCheckIntervalMin: 3600
+  timerEventCheckIntervalVar: 900
+
+# USER MANAGEMENT SERVICE #
+svcUserManagement:
+  name: user-management
+  image: influenzanet/user-management-image:v1.1.1
+  imagePullPolicy: IfNotPresent
+  replicas: 1
+  serviceName: "user-management-service"
+  containerPort: 5002
+  dbTimeout: 30
+  dbIdleTimeout: 46
+  # JWT Tokens
+  # Token expiration time in Minute
+  tokenExpiration: 5
+  # Maximum number of new created accounts, during the signupRateLimitWindow (5 minutes)
+  newUserRateLimit: 100
+  # Delay (seconds) after which to cleanup user account when it has not been verified
+  # NOTE: do not remove quotes to prevent large int conversion to exponential notation
+  cleanupUnverifiedUsersAfter: "129000"
+  # Delay (seconds) after which to send a reminder to unverified users If the
+  # reminder should not be used, simply set this value to a larger number than
+  # the value used to clean up unverified users
+  # NOTE: do not remove quotes to prevent large int conversion to exponential notation
+  sendReminderToUnverifiedUserAfter: "1290000"
+  # Lifetime in seconds for verification code of a new account. Default is 15 minutes
+  verificationCodeLifetime: 900
+
+  # Lifetime of the invitation token, can be integer (as hours) or value + unit (s,m,h) e.g. '10h'. Default 168h (7days)
+  tokenInvitationLifetime: "168h"
+
+  # Lifetime of the contact verification token, integer (as hours) or value+ unit (s,m,h), Default "720h" (30 days)
+  tokenContactVerificationLifetime: "720h"
+
+  # Weight of each weekday (weight=0 day non assigned)
+  # Values: mon=, tue=, wed=, thu=, fri, sat=, sun=
+  # Default is empty (use uniform for all week days, i.e. weight=1 for each)
+  weekdayAssignationWeights: ""

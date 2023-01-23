@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: invite-users-config
+  namespace: {{ .Values.namespace | quote }}
+data:
+  config.yaml: |
+    management_api_url: {{ .Values.management_api_url | quote }}
+    participant_api_url: {{ .Values.participant_api_url | quote }}
+    user_credentials:
+      email: {{ tpl .Values.user_credentials.email . | quote }}
+      password: {{ tpl .Values.user_credentials.password . | quote }}
+      instanceId: {{ .Values.namespace | quote }}
+  migration-settings.yaml: |
+    preferredLanguage: {{ .Values.language | quote }}
+    use2FA: {{ .Values.use2FA }}
+    skipEmptyProfiles: {{ .Values.skipEmptyProfiles }}
+    studyKeys: {{ .Values.studyKeys }}
+  migrate-batch.sh: |
+
+    cd /app
+
+    BATCHES=/data/migration/users_batches
+
+    BATCH="`ls $BATCHES/users_* 2> /dev/null|head -n1`"
+
+    if [ "$BATCH" == "" ]
+    then
+      echo "WARNING: no batches to process, exiting"
+      exit 0
+    fi
+
+    CURRENT="$BATCHES/processed_`basename $BATCH`"
+
+    echo "Processing batch $CURRENT ..."
+
+    mv "$BATCH" $CURRENT
+
+    python study-manager-scripts/run_migrate_users_with_profiles.py \
+    --global_config_yaml \
+    /config/config.yaml \
+    --exported_users \
+    $CURRENT \
+    --settings \
+    /config/migration-settings.yaml \
+    --sleep 1 > $CURRENT.out
+
+    if (( $? == 0 ))
+    then
+      echo "DONE"
+    else
+      echo "FAILED" 1>&2
+      exit 1
+    fi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: invite-users
+  namespace: {{ .Values.namespace | quote }}
+spec:
+  schedule: {{ .Values.schedule | quote }}
+  concurrencyPolicy: Forbid
+  suspend: false
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      template:
+        spec:
+          volumes:
+            - name: "migration-pv"
+              persistentVolumeClaim:
+                claimName: "migration-pv-claim"
+            - name: "invite-users-volume"
+              configMap:
+                name: "invite-users-config"
+          restartPolicy: "Never"
+          containers:
+          - name: "invite-users"
+            image: "{{ .Values.admin_scripts_image }}"
+            command:
+              - /bin/bash
+              - /config/migrate-batch.sh
+            volumeMounts:
+              - mountPath: "/config"
+                name: "invite-users-volume"
+              - mountPath: "/data"
+                name: "migration-pv"

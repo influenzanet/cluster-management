@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-maintenance
+  namespace: {{ .Values.namespace }}
+  annotations:
+    nginx.ingress.kubernetes.io/server-snippet: |
+
+      set $PASS "";
+
+      if ($request_uri ~ ^/(?!.well-known/acme-challenge/)) {
+        set $PASS "N";
+      }
+
+      if ($http_user_agent != {{ tpl .Values.allowAgent . }}){
+        set $PASS "${PASS}O";
+      }
+
+      if ($PASS = NO) {
+        return 503;
+      }
+
+      error_page 503 = @errorpage;
+
+      location @errorpage {
+        proxy_set_header X-Code $status;
+        proxy_pass http://maintenance-service.{{ .Values.namespace }}.svc.cluster.local:3100;
+      }
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: {{ .Values.domain }}
+      http:
+        paths:
+          - backend:
+              service:
+                name: maintenance-service
+                port:
+                  number: 3100
+            # NOTE: this could be anything that is not already in use by another ingress
+            # the actual filtering is done in the nginx snippet above
+            path: /maintenance
+            pathType: ImplementationSpecific

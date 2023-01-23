@@ -1,1 +1,0 @@
-helm install influenzanet-2.0 ./influenzanet-2.0

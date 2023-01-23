@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: email-server-config
-  namespace: {{ .Values.namespace }}
-data:
-  high-prio-smtp-servers.yaml: {{ toPrettyJson .Values.prioSmtpServers }}
-  smtp-servers.yaml: {{ toPrettyJson .Values.smtpServers }}
