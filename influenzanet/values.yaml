@@ -230,6 +230,7 @@ SvcMessageScheduler:
   intervalLowPrio: 1800
   # Batch Sending interval for Auto messages (seconds)
   intervalAutoMessage: 120
+  logLevel: ""
 
 # MESSAGING SERVICE #  
 svcMessaging:
@@ -241,7 +242,8 @@ svcMessaging:
   serviceName: messaging-service
   dbTimeout: 30
   dbIdleTimeout: 46
-
+  logLevel: ""
+  
 # STUDY SERVICE #
 svcStudyService:
   name: study

@@ -22,6 +22,8 @@ spec:
             image: {{ .image }}
             imagePullPolicy: {{ .imagePullPolicy | default "Always" }}
             env:
+              - name: LOG_LEVEL
+                value: "{{ .logLevel }}"
               - name: MESSAGING_SERVICE_LISTEN_PORT
                 value: {{ .containerPort | quote }}
               - name: GLOBAL_DB_CONNECTION_STR
