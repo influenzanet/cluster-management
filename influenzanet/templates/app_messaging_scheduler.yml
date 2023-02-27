@@ -60,12 +60,16 @@ spec:
             value: "{{ .logLevel }}"
           - name: DB_DB_NAME_PREFIX
             value: "{{ $.Values.dbNamePrefix }}"
-          - name: MESSAGE_SCHEDULER_INTERVAL_HIGH_PRIO
+          - name: "MESSAGE_SCHEDULER_INTERVAL_HIGH_PRIO"
             value: "{{ .intervalHighPrio }}"
-          - name: MESSAGE_SCHEDULER_INTERVAL_LOW_PRIO
+          - name: "MESSAGE_SCHEDULER_INTERVAL_LOW_PRIO"
             value: "{{ .intervalLowPrio }}"
-          - name: MESSAGE_SCHEDULER_INTERVAL_AUTO_MESSAGE
+          - name: "MESSAGE_SCHEDULER_INTERVAL_AUTO_MESSAGE"
             value: "{{ .intervalAutoMessage }}"
+          - name: "MESSAGE_SCHEDULER_INTERVAL_PARTICIPANT_MESSAGE"
+            value: "{{ .intervalParticipantMessage }}"
+          - name: "MESSAGE_SCHEDULER_INTERVAL_RESEARCHER_NOTIFICATION"
+            value: "{{ .intervalResearcherNotification }}"
           - name: ADDR_USER_MANAGEMENT_SERVICE
             value: "{{ template "ref.UserManagement" $ }}"
           - name: ADDR_STUDY_SERVICE
