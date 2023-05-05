@@ -176,9 +176,9 @@ svcWebParticipant:
 # EMAIL CLIENT #
 svcEmailClient:
   name: email-client
+  replicas: 1
   image: influenzanet/email-client-service-image:v1.2.0
   imagePullPolicy: IfNotPresent
-  replicas: 1
   containerPort: 5005
   serviceName: email-client-service
   configMapName: email-server-config
@@ -195,6 +195,7 @@ svcLogging:
 #  MANAGEMENT API #
 svcManagementApi:
   name: management-api
+  replicas: 1
   image: influenzanet/management-api-image:v1.2.0
   imagePullPolicy: IfNotPresent
   containerPort: 3232      
@@ -205,6 +206,7 @@ svcManagementApi:
 # PARTICIPANT API #
 svcParticipantApi:
   name: participant-api
+  replicas: 1
   image: influenzanet/participant-api-image:v1.2.0
   imagePullPolicy: IfNotPresent
   containerPort: 3231
@@ -245,9 +247,9 @@ svcMessaging:
 # STUDY SERVICE #
 svcStudyService:
   name: study
+  replicas: 1
   image: influenzanet/study-service-image:v1.3.1
   imagePullPolicy: IfNotPresent
-  replicas: 1
   serviceName: study-service
   containerPort: 5003
   dbTimeout: 30
@@ -259,9 +261,9 @@ svcStudyService:
 # USER MANAGEMENT SERVICE #
 svcUserManagement:
   name: user-management
+  replicas: 1
   image: influenzanet/user-management-image:v1.1.1
   imagePullPolicy: IfNotPresent
-  replicas: 1
   serviceName: "user-management-service"
   containerPort: 5002
   dbTimeout: 30
