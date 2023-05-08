@@ -66,6 +66,10 @@ spec:
             value: "{{ .intervalLowPrio }}"
           - name: MESSAGE_SCHEDULER_INTERVAL_AUTO_MESSAGE
             value: "{{ .intervalAutoMessage }}"
+          - name: MESSAGE_SCHEDULER_INTERVAL_PARTICIPANT_MESSAGE
+            value: "{{ .intervalParticipantMessage }}"
+          - name: MESSAGE_SCHEDULER_INTERVAL_RESEARCHER_NOTIFICATION
+            value: "{{ .intervalResearcherNotification }}"
           - name: ADDR_USER_MANAGEMENT_SERVICE
             value: "{{ template "ref.UserManagement" $ }}"
           - name: ADDR_STUDY_SERVICE

@@ -232,8 +232,10 @@ SvcMessageScheduler:
   intervalLowPrio: 1800
   # Batch Sending interval for Auto messages (seconds)
   intervalAutoMessage: 120
+  intervalParticipantMessage: 120
+  intervalResearcherNotification: 120
 
-# MESSAGING SERVICE #  
+# MESSAGING SERVICE #
 svcMessaging:
   name: messaging
   replicas: 1
