@@ -16,9 +16,12 @@ spec:
     metadata:
       labels:
         app: {{ .name }}
+      annotations:
+        helmImage: {{ .image }}
     spec:
       containers:
         - name: {{ .name }}
+          {{- template "check.deployed.image" dict "namespace" $.Values.namespace "name" .name "image" .image}}
           image: {{ .image }}
           imagePullPolicy: {{ .imagePullPolicy | default "Always" }}
           ports:
