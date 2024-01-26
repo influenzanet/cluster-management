@@ -29,6 +29,7 @@ redirectDomains:
 # API endpoints
 participantApiPath: "/api"
 managementApiPath: "/admin"
+counterWebPath: "/.well-known/influenzanet/counter"
 
 ##
 # TLS configuration
@@ -296,3 +297,20 @@ svcUserManagement:
   # Values: mon=, tue=, wed=, thu=, fri, sat=, sun=
   # Default is empty (use uniform for all week days, i.e. weight=1 for each)
   weekdayAssignationWeights: ""
+
+svcCounter:
+  enabled: false
+  name: counter
+  replicas: 1
+  image: influenzanet/counter-service:v0.1.3
+  imagePullPolicy: IfNotPresent
+  containerPort: 5021
+  serviceName: counter-service
+  dbTimeout: 30
+  dbIdleTimeout: 46
+  InstanceId: influenzanet
+  # InfluenzanetCounterDef can be, either a string (name of the study with Influenzanet compliant survey) or a JSON
+  # With more extended customizations see Service page https://github.com/influenzanet/counter-service
+  # To customize survey '{"active_surveys":["intake", "weekly", "vaccination"]}'
+  InfluenzanetCounterDef: 'influenzanet'
+  PlatformCode: ''
