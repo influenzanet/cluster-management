@@ -79,6 +79,12 @@ spec:
           - backend: {{ template "ingress.backend" .Values.svcManagementApi }}
             path: {{ .Values.managementApiPath }}/(.*)
             pathType: ImplementationSpecific
+{{- if .Values.svcCounter.enabled }}            
+          - backend: {{ template "ingress.backend" .Values.svcCounter }}
+            path: {{ .Values.counterWebPath }}/?(.*)
+            pathType: ImplementationSpecific  
+{{- end }}
+
 {{- if .Values.redirectDomains }}
 ---
 apiVersion: networking.k8s.io/v1

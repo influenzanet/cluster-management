@@ -1,0 +1,74 @@
+{{- if .Values.svcCounter.enabled }}
+{{- with .Values.svcCounter }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .name }}
+  namespace: {{ $.Values.namespace }}
+  labels:
+    app: {{ .name }}
+spec:
+  replicas: {{ .replicas | default 1}}
+  selector:
+    matchLabels:
+      app: {{ .name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .name }}
+    spec:
+      containers:
+        - name: study
+          image: {{ .image }}
+          imagePullPolicy: {{ .imagePullPolicy | default "Always" }}
+          env:
+            - name: PORT
+              value: "{{.containerPort }}"
+            - name: DB_TIMEOUT
+              value: "{{ .dbTimeout }}"
+            - name: DB_IDLE_CONN_TIMEOUT
+              value: "{{ .dbIdleTimeout }}"
+            - name: DB_MAX_POOL_SIZE
+              value: "8"
+            - name: DB_DB_NAME_PREFIX
+              value: "{{ $.Values.dbNamePrefix }}"
+            - name: STUDY_DB_CONNECTION_STR
+              value: "{{ default .dbConnectionStr (tpl $.Values.dbConnectionStr $) }}"
+            - name: STUDY_DB_CONNECTION_PREFIX
+              value: "{{ default .dbConnectionPrefix $.Values.dbConnectionPrefix }}"
+            - name: STUDY_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ default .dbSecretName $.Values.dbSecretName }}"
+                  key: username
+            - name: STUDY_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ default .dbSecretName $.Values.dbSecretName }}"
+                  key: password
+            - name: INSTANCE_ID
+              value: "{{.InstanceId }}"
+            - name: INFLUENZANET_COUNTER
+              value: {{ .InfluenzanetCounterDef | quote }}
+            - name: PLATFORM
+              value: {{ .PlatformCode | quote }}
+          ports:
+            - containerPort: {{ .containerPort }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .serviceName }}
+  namespace: {{ $.Values.namespace }}
+spec: 
+  type: ClusterIP
+  selector:
+    app: {{ .name  }}
+  ports:
+    - name: http
+      protocol: TCP
+      port: {{ .containerPort }}
+      targetPort: {{ .containerPort }}
+{{- end }}
+{{- end }}
