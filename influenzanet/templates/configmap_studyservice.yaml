@@ -1,0 +1,13 @@
+{{- with .Values.svcStudyService }}
+{{- if  gt (len .externalServices) 0 }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .externalServiceConfigMapName | quote }}
+  namespace: {{ $.Values.namespace }}
+data:
+  external-services.yml: |
+    services:    
+{{  .externalServices | toYaml | indent 6 }}
+{{- end }}
+{{- end }}

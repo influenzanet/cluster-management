@@ -259,6 +259,8 @@ svcStudyService:
   timerEventFrequency: 86400
   timerEventCheckIntervalMin: 3600
   timerEventCheckIntervalVar: 900
+  externalServiceConfigMapName: study-service-config
+  externalServices: []
 
 # USER MANAGEMENT SERVICE #
 svcUserManagement:
