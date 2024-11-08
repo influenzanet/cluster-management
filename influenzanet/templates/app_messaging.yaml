@@ -68,6 +68,8 @@ spec:
                 value: "{{ template "ref.emailClientService" $ }}"
               - name: ADDR_LOGGING_SERVICE
                 value: "{{ template "ref.loggingService" $ }}"
+              - name: LOG_LEVEL
+                value: "{{ .logLevel }}"
             ports:
               - containerPort: {{ .containerPort }}
 ---

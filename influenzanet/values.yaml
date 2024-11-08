@@ -234,6 +234,7 @@ SvcMessageScheduler:
   intervalAutoMessage: 120
   intervalParticipantMessage: 120
   intervalResearcherNotification: 120
+  logLevel: ""
 
 # MESSAGING SERVICE #
 svcMessaging:
@@ -245,6 +246,7 @@ svcMessaging:
   serviceName: messaging-service
   dbTimeout: 30
   dbIdleTimeout: 46
+  logLevel: ""
 
 # STUDY SERVICE #
 svcStudyService:
